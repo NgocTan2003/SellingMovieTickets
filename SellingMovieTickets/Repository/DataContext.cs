@@ -22,8 +22,8 @@ namespace SellingMovieTickets.Repository
         public DbSet<TicketModel> Tickets { get; set; }
         public DbSet<PaymentModel> Payments { get; set; }
         public DbSet<Promotion> Promotions { get; set; }
-        public DbSet<ConcessionModel> Concessions { get; set; }
-        public DbSet<ConcessionOrderModel> ConcessionOrders { get; set; }
+        public DbSet<OtherServicesModel> OtherServices { get; set; }
+        public DbSet<OtherServicesOrderModel> OtherServicesOrders { get; set; }
         public DbSet<ReviewModel> Reviews { get; set; }
         public DbSet<MovieCategoryModel> MovieCategories { get; set; }
         public DbSet<MovieCategoryMappingModel> MovieCategoryMappings { get; set; }

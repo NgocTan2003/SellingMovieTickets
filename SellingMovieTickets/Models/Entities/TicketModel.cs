@@ -28,7 +28,5 @@ namespace SellingMovieTickets.Models.Entities
         public DateTime CreateDate { get; set; }
         public string? ModifiedBy { get; set; }
         public DateTime ModifiedDate { get; set; }
-
-        
     }
 }

@@ -1,10 +1,10 @@
-﻿@using SellingMovieTickets.Areas.Admin.Models.ViewModels.News
+﻿@using SellingMovieTickets.Areas.Admin.Models.ViewModels.OtherServices
 @using SellingMovieTickets.Models.Enum
 <link href="~/assetsadmin/styles/image_index.css" rel="stylesheet" />
 
-@model IEnumerable<NewsViewModel>
+@model IEnumerable<OtherServicesViewModel>
 @{
-    ViewData["Title"] = "News Listed";
+    ViewData["Title"] = "OtherServices Listed";
     Paginate pager = new Paginate();
 
     int pageNo = 0;
@@ -25,7 +25,7 @@
             <a asp-controller="HomeDashboard" class="nav-link">Trang chủ</a>
         </li>
         <li class="nav-item d-none d-sm-inline-block">
-            <a href="#" class="nav-link">Tin tức</a>
+            <a href="#" class="nav-link">Dịch vụ khác</a>
         </li>
     </ul>
 }
@@ -34,12 +34,12 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1>Danh sách tin tức</h1>
+                <h1>Danh sách dịch vụ khác</h1>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="#">Home</a></li>
-                    <li class="breadcrumb-item active">Tin tức</li>
+                    <li class="breadcrumb-item active">Dịch vụ khác</li>
                 </ol>
             </div>
         </div>
@@ -49,9 +49,9 @@
 <section class="content">
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">Quản lý tin tức</h3>
+            <h3 class="card-title">Quản lý dịch vụ khác</h3>
             <div class="card-tools">
-                <a asp-controller="News" asp-action="Create" class="btn btn-primary">Thêm mới</a>
+                <a asp-controller="OtherServices" asp-action="Create" class="btn btn-primary">Thêm mới</a>
                 <a class="btn btn-danger" id="btnDeleteAll">Xóa</a>
             </div>
         </div>
@@ -73,12 +73,11 @@
                     <tr>
                         <th><input type="checkbox" id="SelectAll" /></th>
                         <th>STT</th>
-                        <th>Tên tin tức</th>
+                        <th>Tên dịch vụ</th>
                         <th>Description</th>
+                        <th>Giá</th>
                         <th>Image</th>
-                        <th>SeoTitle</th>
                         <th>Hiển thị</th>
-                        <th>Ngày diễn ra</th>
                         <th>Ngày tạo</th>
                         <th>Action</th>
                     </tr>
@@ -92,18 +91,17 @@
                             <tr>
                                 <td><input type="checkbox" class="cbkItem" value="@item.Id" /></td>
                                 <td>@i</td>
-                                <td>@item.Title</td>
-                                <td>@item.Description</td>
-                                <td><img src="~/media/news/@item.Image" class="productImageIndex"></td>
-                                <td>@item.SeoTitle</td>
+                                <td>@item.Name</td>
+                                <td>@Html.Raw(item.Description)</td>
+                                <td>@item.Price</td>
+                                <td><img src="~/media/otherServices/@item.Image" class="productImageIndex"></td>
                                 <td>
                                     <input type="checkbox" class="toggle-status" data-id="@item.Id" @(item.Status == Status.Show ? "checked" : "") />
                                 </td>
-                                <td>@item.StartDate.ToString("dd/MM/yyyy")</td>
                                 <td>@item.CreateDate</td>
                                 <td>
-                                    <a asp-action="Edit" asp-controller="News" asp-route-Id="@item.Id" class="btn btn-primary btn-sm">Edit</a>
-                                    <a asp-action="Delete" asp-controller="News" asp-route-Id="@item.Id" class="btn btn-danger btn-sm confirmDeletion">Delete</a>
+                                    <a asp-action="Edit" asp-controller="OtherServices" asp-route-Id="@item.Id" class="btn btn-primary btn-sm">Edit</a>
+                                    <a asp-action="Delete" asp-controller="OtherServices" asp-route-Id="@item.Id" class="btn btn-danger btn-sm confirmDeletion">Delete</a>
                                 </td>
                             </tr>
                             i++;
@@ -157,7 +155,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: '@Url.Action("DeleteAll", "News")',
+                            url: '@Url.Action("DeleteAll", "OtherServices")',
                             type: 'POST',
                             data: { ids: str },
                             success: function (response) {
@@ -209,7 +207,7 @@
             var status = isChecked ? 1 : 0;
 
             $.ajax({
-                url: '@Url.Action("UpdateStatus", "News")',
+                url: '@Url.Action("UpdateStatus", "OtherServices")',
                 type: 'POST',
                 data: { id: id, status: status },
                 success: function (response) {
@@ -233,7 +231,6 @@
                 }
             });
         });
-
     });
 </script>
 

@@ -98,26 +98,6 @@ namespace SellingMovieTickets.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Concessions",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(10,3)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Image = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreateBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Concessions", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "MovieCategories",
                 columns: table => new
                 {
@@ -185,6 +165,26 @@ namespace SellingMovieTickets.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_News", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OtherServices",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(10,3)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Image = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreateBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OtherServices", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -335,38 +335,6 @@ namespace SellingMovieTickets.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ConcessionOrders",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    UserId1 = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    ConcessionId = table.Column<int>(type: "int", nullable: false),
-                    CreateBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ConcessionOrders", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ConcessionOrders_AspNetUsers_UserId1",
-                        column: x => x.UserId1,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_ConcessionOrders_Concessions_ConcessionId",
-                        column: x => x.ConcessionId,
-                        principalTable: "Concessions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "MovieCategoryMappings",
                 columns: table => new
                 {
@@ -424,12 +392,45 @@ namespace SellingMovieTickets.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "OtherServicesOrders",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    UserId1 = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    OtherServicesId = table.Column<int>(type: "int", nullable: false),
+                    CreateBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OtherServicesOrders", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OtherServicesOrders_AspNetUsers_UserId1",
+                        column: x => x.UserId1,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_OtherServicesOrders_OtherServices_OtherServicesId",
+                        column: x => x.OtherServicesId,
+                        principalTable: "OtherServices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CinemaShowTimes",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    MovieSreenTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    StartShowTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndShowTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     RoomId = table.Column<int>(type: "int", nullable: false),
                     MovieId = table.Column<int>(type: "int", nullable: false),
                     CreateBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -602,19 +603,19 @@ namespace SellingMovieTickets.Migrations
                 column: "RoomId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ConcessionOrders_ConcessionId",
-                table: "ConcessionOrders",
-                column: "ConcessionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ConcessionOrders_UserId1",
-                table: "ConcessionOrders",
-                column: "UserId1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_MovieCategoryMappings_MovieCategoryId",
                 table: "MovieCategoryMappings",
                 column: "MovieCategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OtherServicesOrders_OtherServicesId",
+                table: "OtherServicesOrders",
+                column: "OtherServicesId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OtherServicesOrders_UserId1",
+                table: "OtherServicesOrders",
+                column: "UserId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Payments_TicketId",
@@ -671,13 +672,13 @@ namespace SellingMovieTickets.Migrations
                 name: "Categories");
 
             migrationBuilder.DropTable(
-                name: "ConcessionOrders");
-
-            migrationBuilder.DropTable(
                 name: "MovieCategoryMappings");
 
             migrationBuilder.DropTable(
                 name: "News");
+
+            migrationBuilder.DropTable(
+                name: "OtherServicesOrders");
 
             migrationBuilder.DropTable(
                 name: "Payments");
@@ -695,10 +696,10 @@ namespace SellingMovieTickets.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "Concessions");
+                name: "MovieCategories");
 
             migrationBuilder.DropTable(
-                name: "MovieCategories");
+                name: "OtherServices");
 
             migrationBuilder.DropTable(
                 name: "Tickets");

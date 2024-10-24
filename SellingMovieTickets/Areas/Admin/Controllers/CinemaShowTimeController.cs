@@ -18,10 +18,9 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
         private readonly DataContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public CinemaShowTimeController(DataContext context, IWebHostEnvironment webHostEnvironment)
+        public CinemaShowTimeController(DataContext context)
         {
             _context = context;
-            _webHostEnvironment = webHostEnvironment;
         }
 
         public async Task<IActionResult> Index(string searchText, int pg)
