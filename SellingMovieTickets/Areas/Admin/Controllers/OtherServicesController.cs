@@ -187,7 +187,6 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                             System.IO.File.Delete(oldFileImage);
                         }
                     }
-
                     string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/otherServices");
                     string imageName = Guid.NewGuid().ToString() + "_" + updateOther.ImageUpload.FileName;
                     string filePath = Path.Combine(uploadDir, imageName);
