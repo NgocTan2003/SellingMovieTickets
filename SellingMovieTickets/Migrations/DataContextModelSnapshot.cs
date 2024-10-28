@@ -334,9 +334,6 @@ namespace SellingMovieTickets.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int?>("CinemaShowTimeModelId")
-                        .HasColumnType("int");
-
                     b.Property<string>("CreateBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -362,8 +359,6 @@ namespace SellingMovieTickets.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CinemaShowTimeModelId");
 
                     b.HasIndex("MovieId");
 
@@ -448,6 +443,9 @@ namespace SellingMovieTickets.Migrations
                     b.Property<string>("Image")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsOutstanding")
+                        .HasColumnType("bit");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -466,6 +464,13 @@ namespace SellingMovieTickets.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Origin")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(10,3)");
+
                     b.Property<string>("Rating")
                         .HasColumnType("nvarchar(max)");
 
@@ -474,6 +479,10 @@ namespace SellingMovieTickets.Migrations
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
+
+                    b.Property<string>("StatusMovie")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TrailerUrl")
                         .HasColumnType("nvarchar(max)");
@@ -538,7 +547,7 @@ namespace SellingMovieTickets.Migrations
                     b.ToTable("News");
                 });
 
-            modelBuilder.Entity("SellingMovieTickets.Models.Entities.OtherServices", b =>
+            modelBuilder.Entity("SellingMovieTickets.Models.Entities.OtherServicesModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -944,10 +953,6 @@ namespace SellingMovieTickets.Migrations
 
             modelBuilder.Entity("SellingMovieTickets.Models.Entities.CinemaShowTimeModel", b =>
                 {
-                    b.HasOne("SellingMovieTickets.Models.Entities.CinemaShowTimeModel", null)
-                        .WithMany("CinemaShowTimes")
-                        .HasForeignKey("CinemaShowTimeModelId");
-
                     b.HasOne("SellingMovieTickets.Models.Entities.MovieModel", "Movie")
                         .WithMany("CinemaShowTimes")
                         .HasForeignKey("MovieId")
@@ -986,7 +991,7 @@ namespace SellingMovieTickets.Migrations
 
             modelBuilder.Entity("SellingMovieTickets.Models.Entities.OtherServicesOrderModel", b =>
                 {
-                    b.HasOne("SellingMovieTickets.Models.Entities.OtherServices", "OtherServices")
+                    b.HasOne("SellingMovieTickets.Models.Entities.OtherServicesModel", "OtherServices")
                         .WithMany("OtherServicesOrders")
                         .HasForeignKey("OtherServicesId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1059,8 +1064,6 @@ namespace SellingMovieTickets.Migrations
 
             modelBuilder.Entity("SellingMovieTickets.Models.Entities.CinemaShowTimeModel", b =>
                 {
-                    b.Navigation("CinemaShowTimes");
-
                     b.Navigation("Tickets");
                 });
 
@@ -1076,7 +1079,7 @@ namespace SellingMovieTickets.Migrations
                     b.Navigation("MovieCategoryMappings");
                 });
 
-            modelBuilder.Entity("SellingMovieTickets.Models.Entities.OtherServices", b =>
+            modelBuilder.Entity("SellingMovieTickets.Models.Entities.OtherServicesModel", b =>
                 {
                     b.Navigation("OtherServicesOrders");
                 });

@@ -37,9 +37,12 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                     x.Name.Contains(searchText) ||
                     x.Description.Contains(searchText) ||
                     x.ReleaseDate.ToString().Contains(searchText) ||
+                    x.Price.ToString().Contains(searchText) ||
                     x.Duration.ToString().Contains(searchText) ||
                     x.MovieLanguageFormat.Contains(searchText) ||
                     x.MovieFormat.Contains(searchText) ||
+                    x.StatusMovie.Equals(searchText) ||
+                    x.Origin.Contains(searchText) ||
                     x.TrailerUrl.Contains(searchText));
             }
 
@@ -62,6 +65,9 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                 Duration = x.Duration,
                 MovieLanguageFormat = x.MovieLanguageFormat,
                 MovieFormat = x.MovieFormat,
+                StatusMovie = x.StatusMovie,
+                Origin = x.Origin,
+                Price = x.Price,
                 Director = x.Director,
                 Actor = x.Actor,
                 Rating = x.Rating,
@@ -97,7 +103,12 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                     MovieFormat.IMAX,
                     MovieFormat.FourD
                 }),
-                MovieCategoryList = new MultiSelectList(_context.MovieCategories, "Id", "CategoryName")
+                MovieCategoryList = new MultiSelectList(_context.MovieCategories, "Id", "CategoryName"),
+                StatusMovies = new SelectList(new List<string>
+                {
+                    StatusMovie.CommingSoon,
+                    StatusMovie.NowShowing,
+                })
             };
 
             return View(viewModel);
@@ -119,6 +130,11 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                     MovieFormat.ThreeD,
                     MovieFormat.IMAX,
                     MovieFormat.FourD
+                });
+            movie.StatusMovies = new SelectList(new List<string>
+                {
+                    StatusMovie.CommingSoon,
+                    StatusMovie.NowShowing,
                 });
             movie.MovieCategoryList = new MultiSelectList(_context.MovieCategories, "Id", "CategoryName");
 
@@ -159,9 +175,13 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                     Duration = movie.Duration,
                     MovieLanguageFormat = movie.SelectedMovieLanguageFormat,
                     MovieFormat = movie.SelectedMovieFormat,
+                    StatusMovie = movie.SelectedStatusMovie,
+                    Origin = movie.Origin,
+                    Price = movie.Price,
                     Director = movie.Director,
                     Actor = movie.Actor,
                     TrailerUrl = movie.TrailerUrl,
+                    IsOutstanding = movie.IsOutstanding,
                     Status = movie.Status,
                     Image = imageName,
                     CreateDate = DateTime.Now,
@@ -224,6 +244,11 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                     MovieFormat.IMAX,
                     MovieFormat.FourD
                 });
+            updateMovie.StatusMovies = new SelectList(new List<string>
+                {
+                    StatusMovie.CommingSoon,
+                    StatusMovie.NowShowing,
+                });
             return View(updateMovie);
         }
 
@@ -237,10 +262,14 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                 Duration = movie.Duration,
                 SelectedMovieLanguageFormat = movie.MovieLanguageFormat,
                 SelectedMovieFormat = movie.MovieFormat,
+                SelectedStatusMovie = movie.StatusMovie,
+                Origin = movie.Origin,
+                Price = movie.Price,
                 Director = movie.Director,
                 Actor = movie.Actor,
                 TrailerUrl = movie.TrailerUrl,
                 Status = movie.Status,
+                IsOutstanding = movie.IsOutstanding,
                 Image = movie.Image,
             };
         }
@@ -261,6 +290,11 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                     MovieFormat.ThreeD,
                     MovieFormat.IMAX,
                     MovieFormat.FourD
+                });
+            movie.StatusMovies = new SelectList(new List<string>
+                {
+                    StatusMovie.CommingSoon,
+                    StatusMovie.NowShowing,
                 });
             movie.MovieCategoryList = new MultiSelectList(_context.MovieCategories, "Id", "CategoryName");
 
@@ -285,8 +319,12 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                 existingMovie.Duration = movie.Duration;
                 existingMovie.MovieLanguageFormat = movie.SelectedMovieLanguageFormat;
                 existingMovie.MovieFormat = movie.SelectedMovieFormat;
+                existingMovie.StatusMovie = movie.SelectedStatusMovie;
+                existingMovie.Origin = movie.Origin;
+                existingMovie.Price = movie.Price;
                 existingMovie.TrailerUrl = movie.TrailerUrl;
                 existingMovie.Status = movie.Status;
+                existingMovie.IsOutstanding = movie.IsOutstanding;
                 existingMovie.ModifiedBy = nameEditor;
                 existingMovie.ModifiedDate = DateTime.Now;
 

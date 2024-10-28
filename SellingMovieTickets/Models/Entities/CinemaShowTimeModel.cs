@@ -23,6 +23,5 @@ namespace SellingMovieTickets.Models.Entities
         public DateTime ModifiedDate { get; set; }
 
         public ICollection<TicketModel> Tickets { get; set; }
-        public ICollection<CinemaShowTimeModel> CinemaShowTimes { get; set; }
     }
 }

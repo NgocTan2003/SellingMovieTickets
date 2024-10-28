@@ -33,11 +33,25 @@ namespace SellingMovieTickets.Areas.Admin.Models.ViewModels.Movie
         public string SelectedMovieFormat { get; set; }
         public SelectList? MovieFormats { get; set; }
 
+
+        [Required(ErrorMessage = "Yêu cầu chọn trạng thái phim")]
+        public string SelectedStatusMovie { get; set; }
+        public SelectList? StatusMovies { get; set; }
+
+
+        [Required(ErrorMessage = "Yêu cầu nhập xuất xứ ")]
+        public string Origin { get; set; }
+
+        [Required(ErrorMessage = "Yêu cầu nhập giá vé")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Giá phải lớn hơn 0")]
+        [Column(TypeName = "decimal(10, 3)")]
+        public decimal Price { get; set; }
         [Required(ErrorMessage = "Yêu cầu nhập tên đạo diễn")]
         public string Director { get; set; }
         [Required(ErrorMessage = "Yêu cầu nhập tên diễn viên")]
         public string Actor { get; set; }
         public string? TrailerUrl { get; set; }
+        public bool IsOutstanding { get; set; }
         public Status Status { get; set; }
         [NotMapped]
         [FileExtension]

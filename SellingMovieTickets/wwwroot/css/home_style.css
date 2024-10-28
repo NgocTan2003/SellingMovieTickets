@@ -1,0 +1,47 @@
+﻿/* Movie NowShowing */
+.movieNowShowing{
+    max-width: 80rem;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+.section-title {
+    font-weight: bold;
+    font-size: 24px;
+    margin-top: 20px;
+}
+
+.movie-item, .promotion-item {
+    background-color: #222;
+    border-radius: 10px;
+    overflow: hidden;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+    .movie-item img, .promotion-item img {
+        width: 100%;
+        height: auto;
+    }
+
+.movie-info, .promotion-info {
+    padding: 10px;
+}
+
+    .movie-info h6 {
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .movie-info p, .movie-info small {
+        color: #aaa;
+    }
+
+.section-link {
+    color: #ccc;
+    float: right;
+    font-size: 14px;
+}
+
+
+

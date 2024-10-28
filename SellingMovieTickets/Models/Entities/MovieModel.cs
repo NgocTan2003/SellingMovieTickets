@@ -21,10 +21,19 @@ namespace SellingMovieTickets.Models.Entities
         public string MovieLanguageFormat { get; set; }
         [Required(ErrorMessage = "Yêu cầu chọn định dạng phim")]
         public string MovieFormat { get; set; }
+        [Required(ErrorMessage = "Yêu cầu nhập giá")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Giá phải lớn hơn 0")]
+        [Column(TypeName = "decimal(10, 3)")]
+        public decimal Price { get; set; }
         [Required(ErrorMessage = "Yêu cầu nhập tên đạo diễn")]
         public string Director { get; set; }
         [Required(ErrorMessage = "Yêu cầu nhập tên diễn viên")]
         public string Actor { get; set; }
+        [Required(ErrorMessage = "Yêu cầu chọn tình trạng phim")]
+        public string StatusMovie { get; set; }
+        [Required(ErrorMessage = "Yêu cầu nhập xuất xứ")]
+        public string Origin { get; set; }
+        public bool IsOutstanding { get; set; }
         public string? Rating { get; set; }
         public string? TrailerUrl { get; set; }
         public Status Status { get; set; }
