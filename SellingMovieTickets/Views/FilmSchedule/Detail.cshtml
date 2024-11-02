@@ -1,0 +1,229 @@
+﻿@using SellingMovieTickets.Areas.Admin.Models.ViewModels.Movie
+<link href="~/css/filmschedule.css" rel="stylesheet" />
+@model MovieWithShowTime
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-4 d-flex justify-content-center">
+            <img src="~/media/movies/@Model.MovieVM.Image" alt="Movie Poster" class="img-fluid rounded shadow-lg">
+        </div>
+
+        <div class="col-md-8">
+            <h3 class="movie-title text-white font-weight-bold">@Model.MovieVM.Name <span class="badge badge-secondary ml-2">@Model.MovieVM.MovieFormat</span></h3>
+            <ul class="list-inline movie-info">
+                <li class="list-inline-item">Thể loại: @Model.MovieVM.Genres</li> |
+                <li class="list-inline-item">Quốc gia: @Model.MovieVM.Origin</li> |
+                <li class="list-inline-item">Thời lượng: @Model.MovieVM.Duration</li> |
+                <li class="list-inline-item">Đạo diễn: @Model.MovieVM.Director</li>
+            </ul>
+            <p class="text-white">Diễn viên: @Model.MovieVM.Actor</p>
+            <p class="text-white">Khởi chiếu: @Model.MovieVM.ReleaseDate.ToString("dd/MM/yyyy")</p>
+            <p class="movie-description text-white">@Html.Raw(@Model.MovieVM.Description)</p>
+            <p class="text-danger">Kiểm duyệt: T16 - Phim được phổ biến đến người xem từ đủ 16 tuổi trở lên (16+)</p>
+            <button type="button" class="btn btn-outline-secondary mr-2 rounded text-white">Chi tiết nội dung</button>
+            <button type="button" class="btn btn-warning rounded">Xem trailer</button>
+        </div>
+    </div>
+</div>
+
+<div class="containerButtons">
+    <div class="d-flex justify-content-center calendar-bar dateButtons">
+    </div>
+</div>
+
+<div class="container mt-5">
+    <p class="text-warning d-flex justify-content-center">Lưu ý: Khán giả dưới 13 tuổi chỉ chọn suất chiếu kết thúc trước 22h và khán giả dưới 16 tuổi chỉ chọn suất chiếu kết thúc trước 23h.</p>
+
+    <div class="d-flex justify-content-between align-items-center">
+        <h5 class="text-white">Giờ chiếu: <span class="text-white font-weight-bold">@Model.StartShowTime.ToString("HH:mm")</span></h5>
+        <div class="border border-warning text-warning p-2 rounded">
+            Thời gian chọn ghế: <span id="timer">10:00</span>
+        </div>
+    </div>
+
+    <div class="text-center my-4">
+        <div class="screen bg-warning rounded"></div>
+        <h5 class="mt-4 text-light fz-18">Phòng chiếu số @Model.RoomVM.RoomNumber</h5>
+    </div>
+
+    <div class="seat-container">
+        <div class="container">
+            @for (int row = 0; row < @Model.RoomVM.NumberOfSeats; row++)
+            {
+                <div class="row justify-content-center mx-0">
+                    @for (int col = 1; col <= @Model.RoomVM.RowNumber; col++)
+                    {
+                        var rowLetter = (char)('A' + row);
+                        string seatClass = row < 3 ? "seat-regular" : "seat-vip";
+                        <div>
+                            <button class="seat btn btn-sm mx-1 mb-2 text-white @seatClass"
+                                    data-seat="@($"{rowLetter}{col}")">
+                                @($"{rowLetter}{col}")
+                            </button>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="d-flex align-items-center justify-content-center mb-4 mt-4 fz-16">
+        <div class="seat-type">
+            <div class="seat-box seat-booked d-flex justify-content-between">
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 md:text-gray-500 h-2 w-2 md:h-6 md:w-6"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+            </div>
+            <span>Đã đặt</span>
+        </div>
+        <div class="seat-type">
+            <div class="seat-box seat-selected"></div>
+            <span>Ghế bạn chọn</span>
+        </div>
+        <div class="seat-type">
+            <div class="seat-box seat-regular"></div>
+            <span>Ghế thường</span>
+        </div>
+        <div class="seat-type">
+            <div class="seat-box seat-vip"></div>
+            <span>Ghế VIP</span>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-around fz-16">
+        <div class="seat-info">
+            Ghế đã chọn: <span class="seat-info_Item text-white"></span><br>
+            Tổng tiền: <span class="total-price text-white">0đ</span>
+        </div>
+        <div class="button-container">
+            <a class="btn btn-back" asp-controller="FilmSchedule" asp-action="Index">Quay lại</a>
+            <a class="btn btn-pay">Thanh toán</a>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        let timeLeft = 10 * 60;
+        const seatPrice = @Html.Raw(Json.Serialize(Model.MovieVM.Price));
+        var totalPrice = 0;
+        const paymentUrl = '@Url.Action("Index", "Payment")';
+        var movieBooking = {
+            filmName: @Html.Raw(Json.Serialize(Model.MovieVM.Name)),
+            movieFormat: @Html.Raw(Json.Serialize(Model.MovieVM.MovieFormat)),
+            roomName: @Html.Raw(Json.Serialize(Model.RoomVM.RoomNumber)),
+            time: @Html.Raw(Json.Serialize(Model.StartShowTime)),
+            items: []
+        };
+
+        $(document).ready(function () {
+            generateDateButtons();
+        });
+
+        function generateDateButtons() {
+            const today = new Date();
+            for (let i = 0; i < 4; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                const dayOfWeek = date.toLocaleDateString('vi-VN', { weekday: 'long' });
+
+                const calendarItem = `
+                                                                                                                                                                                                                                    <div class="calendar-item ${i === 0 ? 'active' : ''}">
+                                                                                                                                                                                                                                        <span>Th. ${month}</span>
+                                                                                                                                                                                                                                        <span class="day-number">${day}</span>
+                                                                                                                                                                                                                                        <span class="day-name">${dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1)}</span>
+                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                `;
+                $('.dateButtons').append(calendarItem);
+            }
+        }
+
+        // Cập nhật đồng hồ đếm ngược
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+
+            document.getElementById("timer").textContent =
+                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                window.location.href = "@Url.Action("Index", "Home")";
+            }
+            timeLeft--;
+        }
+        const timerInterval = setInterval(updateTimer, 1000);
+
+        // Chọn ghế
+        $(".seat").click(function () {
+            let seatList = $(".seat-info_Item").text();
+            let InforSeat = {
+                seatName: "",
+                seatPrice: 0
+            };
+
+            if (this.classList.contains("seat-selected")) {
+                this.classList.remove("seat-selected");
+                const seatName = $(this).data("seat");
+                seatList = seatList.replace(new RegExp(seatName + '(,\\s*)?', 'g'), '');
+                seatList = seatList.replace(/,\s*$/, '').trim();
+                $(".seat-info_Item").text(seatList);
+
+                removeSeatBySeatName(movieBooking, seatName);
+                if ($(this).hasClass("seat-vip")) {
+                    totalPrice -= (seatPrice + 10);
+                    changeBtnPay(totalPrice);
+                } else {
+                    totalPrice -= seatPrice;
+                    changeBtnPay(totalPrice);
+                }
+                $(".total-price").text(totalPrice.toLocaleString() + ".000đ");
+            } else {
+                this.classList.add("seat-selected");
+                const seatName = $(this).data("seat");
+                InforSeat.seatName = seatName;
+                if (seatList == "") {
+                    $(".seat-info_Item").text(seatName);
+                } else {
+                    $(".seat-info_Item").text(seatList + ", " + seatName);
+                }
+
+                if ($(this).hasClass("seat-vip")) {
+                    totalPrice += (seatPrice + 10);
+                    InforSeat.seatPrice = seatPrice + 10;
+                    changeBtnPay(totalPrice);
+                } else {
+                    totalPrice += seatPrice;
+                    InforSeat.seatPrice = seatPrice;
+                    changeBtnPay(totalPrice);
+                }
+                movieBooking.items.push(InforSeat);
+                $(".total-price").text(totalPrice.toLocaleString() + ".000đ");
+            }
+        });
+
+        function changeBtnPay(total) {
+            const btnPay = $('.btn-pay');
+            if (total > 0) {
+                btnPay.css('opacity', 1).attr('href', paymentUrl);
+            } else {
+                btnPay.css('opacity', 0.6).removeAttr('href');
+            }
+        }
+
+        function removeSeatBySeatName(data, seatName) {
+            data.items = data.items.filter(item => item.seatName !== seatName);
+        }
+
+        $(".btn-pay").click(function () {
+            console.log(movieBooking);
+            localStorage.setItem('state', JSON.stringify(movieBooking));
+        });
+
+
+    </script>
+}

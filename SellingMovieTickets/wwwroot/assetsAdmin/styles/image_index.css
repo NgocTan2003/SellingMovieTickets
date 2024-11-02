@@ -5,4 +5,7 @@
     border-radius: 5px;
 }
 
-
+.style_imageAdmin {
+    object-fit: cover;
+    margin-top: 4px;
+}

@@ -1,0 +1,135 @@
+﻿<link href="~/css/payment.css" rel="stylesheet" />
+
+<div class="container my-5">
+    <div class="row">
+        <!-- Movie Information -->
+        <div class="col-md-8">
+            <div class="card seat-info">
+                <h5 class="text-white">Thông tin phim</h5>
+                <div class="row">
+                    <div class="col-6">
+                        <p class="text-white">Phim<br><strong class="movieName">CHÙM PHIM TÀI LIỆU 3 -TI6-LHP TÀI LIỆU</strong></p>
+                        <p class="text-white">Ngày giờ chiếu<br><strong class="movieTime text-warning"></strong></p>
+                        <p class="text-white">Định dạng<br><strong class="movieFormat"></strong></p>
+                    </div>
+                    <div class="col-6 text-right">
+                        <p class="text-white">Ghế<br><strong class="movieSeats"></strong></p>
+                        <p class="text-white">Phòng chiếu<br><strong class="movieRoom"></strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4 seat-info">
+                <h5 class="text-white">Thông tin thanh toán</h5>
+                <table class="table table-borderless text-white">
+                    <thead>
+                        <tr>
+                            <th>Danh mục</th>
+                            <th class="text-center">Số lượng</th>
+                            <th class="text-right">Tổng tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="listSeat">Ghế</td>
+                            <td class="text-center totalTicket"></td>
+                            <td class="text-right totalPrice"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card payment-method">
+                <h5 class="text-white">Phương thức thanh toán</h5>
+                <div>
+                    <input type="radio" id="vietqr" name="payment" value="vietqr">
+                    <label for="vietqr"><img src="" alt="VietQR" style="width: 24px; height: 24px;"> VietQR</label>
+                </div>
+                <div>
+                    <input type="radio" id="vnpay" name="payment" value="vnpay">
+                    <label for="vnpay"><img src="" alt="VNPAY" style="width: 24px; height: 24px;"> VNPAY</label>
+                </div>
+                <div>
+                    <input type="radio" id="viettel" name="payment" value="viettel">
+                    <label for="viettel"><img src="" alt="Viettel Money" style="width: 24px; height: 24px;"> Viettel Money</label>
+                </div>
+                <div>
+                    <input type="radio" id="payoo" name="payment" value="payoo">
+                    <label for="payoo"><img src="" alt="Payoo" style="width: 24px; height: 24px;"> Payoo</label>
+                </div>
+            </div>
+
+            <div class="card mt-4 total-info">
+                <h5 class="text-white">Chi phí</h5>
+                <div class="d-flex justify-content-between cost">
+                    <p class="text-white">Thanh toán</p>
+                    <p class="text-white totalPrice">60.000đ</p>
+                </div>
+                <div class="d-flex justify-content-between cost">
+                    <p class="text-white">Phí</p>
+                    <p class="text-white">0đ</p>
+                </div>
+                <div class="d-flex justify-content-between cost">
+                    <p><strong class="text-white">Tổng cộng</strong></p>
+                    <p><strong class="text-white totalPrice"></strong></p>
+                </div>
+                <a href="#" class="btn btn-pay mt-3" id="payButton">Thanh toán</a>
+                <a href="#" class="btn btn-back mt-3" id="BackButton">Quay lại</a>
+
+                <p class="text-muted mt-2">Lưu ý: Không mua vé cho trẻ em dưới 13 tuổi đối với các suất chiếu phim kết thúc sau 22h00 và không mua vé cho trẻ em dưới 16 tuổi đối với các suất chiếu phim kết thúc sau 23h00.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            let seats = "";
+            let totalPrice = 0;
+            let countSeat = 0;
+
+            const movieBooking = JSON.parse(localStorage.getItem('state'));
+            $(document).ready(function () {
+                init();
+                console.log(movieBooking);
+            });
+
+            function init() {
+                getSeats(movieBooking.items);
+                $(".movieName").text(movieBooking.filmName);
+                $(".movieTime").text(changeMovieTime(movieBooking.time));
+                $(".movieFormat").text(movieBooking.movieFormat);
+                $(".movieSeats").text(seats);
+                $(".movieRoom").text(movieBooking.roomName);
+                $(".listSeat").text("Ghế " + "(" + seats + ")");
+                $(".totalTicket").text(movieBooking.items.length);
+                $(".totalPrice").text(totalPrice + ".000đ");
+            }
+
+            function changeMovieTime(inputDate) {
+                const date = new Date(inputDate);
+                const hours = date.getHours().toString().padStart(2, '0');
+                const minutes = date.getMinutes().toString().padStart(2, '0');
+                const day = date.getDate().toString().padStart(2, '0');
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const year = date.getFullYear();
+                const formattedDate = `${hours}:${minutes} - ${day}/${month}/${year}`;
+                return formattedDate;
+            }
+
+            function getSeats(listSeat) {
+                let seatNames = [];
+                listSeat.forEach(item => {
+                    totalPrice += item.seatPrice;
+                    seatNames.push(item.seatName);
+                });
+                seats = seatNames.join(", ");
+            }
+
+        });
+    </script>
+}

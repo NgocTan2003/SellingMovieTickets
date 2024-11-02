@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <Folder Include="Areas\Admin\Repository\" />
-    <Folder Include="wwwroot\media\accounts\" />
     <Folder Include="wwwroot\media\advs\" />
     <Folder Include="wwwroot\media\movies\" />
     <Folder Include="wwwroot\media\otherServices\" />

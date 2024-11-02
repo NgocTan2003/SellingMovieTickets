@@ -19,7 +19,7 @@ function readURL(input) {
         let reader = new FileReader();
 
         reader.onload = function (e) {
-            $("img#imgpreview").attr("src", e.target.result).width(160).height(140);
+            $("img#imgpreview").attr("src", e.target.result).addClass("style_imageAdmin");
         };
 
         reader.readAsDataURL(input.files[0]);

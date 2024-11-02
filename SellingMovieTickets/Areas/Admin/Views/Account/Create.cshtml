@@ -1,4 +1,6 @@
 ﻿@using SellingMovieTickets.Areas.Admin.Models.Accounts
+<link href="~/assetsadmin/styles/image_index.css" rel="stylesheet" />
+
 @model CreateAccount
 @{
     ViewData["Title"] = "Create Account";
@@ -93,7 +95,7 @@
                         <label for="ImageUpload">Ảnh đại diện</label>
                         <input asp-for="User.ImageUpload" class="form-control-file" title="Tải lên hình ảnh" />
                         <span asp-validation-for="User.ImageUpload" class="text-danger"></span>
-                        <img id="imgpreview" class="pt-2" />
+                        <img id="imgpreview" class="pt-2 style_imageAdmin" />
                     </div>
 
                     <div class="form-group">

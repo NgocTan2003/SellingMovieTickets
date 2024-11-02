@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SellingMovieTickets.Areas.Admin.Services;
 using SellingMovieTickets.Models.Entities;
 using SellingMovieTickets.Models.Enum;
 using SellingMovieTickets.Models.ViewModels.Users;
 using System.Data;
+using System.Security.Claims;
 
 namespace SellingMovieTickets.Controllers
 {
@@ -46,6 +48,22 @@ namespace SellingMovieTickets.Controllers
                 Microsoft.AspNetCore.Identity.SignInResult result = await _signInManager.PasswordSignInAsync(loginVM.Username, loginVM.Password, false, false);
                 if (result.Succeeded)
                 {
+                    var avatar = findUserName.Avatar ?? "avatar_default.jpg";
+                    var roles = await _userManager.GetRolesAsync(findUserName);
+                    var role = roles.FirstOrDefault() ?? "Unknown";
+
+                    var claims = new List<Claim>
+                                {
+                                    new Claim(ClaimUserLogin.Id, findUserName.Id),
+                                    new Claim(ClaimUserLogin.Avatar, avatar),
+                                    new Claim(ClaimUserLogin.UserName, findUserName.FullName ?? findUserName.UserName),
+                                    new Claim(ClaimUserLogin.Role, role)
+                                };
+
+                    // Tạo claims identity và đăng nhập
+                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    await _signInManager.SignInWithClaimsAsync(findUserName, false, claims);
+
                     var user = await _userManager.FindByNameAsync(loginVM.Username);
                     TempData["Success"] = "Đăng nhập thành công";
                     var receiver = user.Email;

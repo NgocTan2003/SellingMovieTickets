@@ -8,13 +8,13 @@
     <div class="row" style="justify-content: center">
         <div class="col-sm-8 col-sm-offset-1">
             <div class="login-form">
-                <h2>Register your account</h2>
+                <h2>Đăng ký</h2>
                 <form asp-action="Create" enctype="multipart/form-data">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <div class="bs-stepper-content">
                         <div id="logins-part" class="content" role="tabpanel" aria-labelledby="logins-part-trigger">
                             <div class="input-group input-group-outline mb-3">
-                                <label>UserName</label>
+                                <label>Tên đăng nhập</label>
                                 <input asp-for="Username" class="form-control text-black" />
                                 <span asp-validation-for="Username" class="text-danger" />
                             </div>
@@ -24,12 +24,17 @@
                                 <span asp-validation-for="Email" class="text-danger" />
                             </div>
                             <div class="input-group input-group-outline mb-3">
-                                <label>Password</label>
+                                <label>Mật khẩu</label>
                                 <input asp-for="Password" class="form-control" />
                                 <span asp-validation-for="Password" class="text-danger" />
                             </div>
-                            <button class="btn btn-default">Create</button>
-                            <a asp-action="Login" asp-controller="Account">Bạn đã có tài khoản? Đăng nhập ngay</a>
+                            <a asp-action="Register" asp-controller="Account" class="btn btn-default mt-4"> Đăng ký</a>
+                            <div class="box_optionRegister">
+                                <p class="text-white">
+                                    Bạn đã có tài khoản?
+                                </p>
+                                <a asp-action="Login" asp-controller="Account" class="optionRegisterItem"> Đăng nhập ngay</a>
+                            </div>
                         </div>
                     </div>
                 </form>

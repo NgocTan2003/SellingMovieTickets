@@ -1,4 +1,6 @@
 ﻿@using SellingMovieTickets.Areas.Admin.Models.Accounts
+<link href="~/assetsadmin/styles/image_index.css" rel="stylesheet" />
+
 @model UpdateAccount
 @{
     ViewData["Title"] = "Update Account";
@@ -87,17 +89,14 @@
                         <label for="ImageUpload">Ảnh đại diện</label>
                         <input asp-for="User.ImageUpload" class="form-control-file" title="Tải lên hình ảnh" />
                         <span asp-validation-for="User.ImageUpload" class="text-danger"></span>
-                        <img id="imageFirst"
-                             src="@(string.IsNullOrEmpty(Model.User.Avatar) ? "/media/accounts/avatar_default.jpg" : $"/media/accounts/{Model.User.Avatar}")"
-                             width="160"
-                             height="140"
-                             style="margin-top: 4px">
-                        <img id="imgpreview" class="pt-2" />
+                        <img id="imageFirst" class="style_imageAdmin"
+                             src="@(string.IsNullOrEmpty(Model.User.Avatar) ? "/media/accounts/avatar_default.jpg" : $"/media/accounts/{Model.User.Avatar}")">
+                        <img id="imgpreview" class="pt-2 style_imageAdmin" />
                     </div>
 
                     <div class="form-group">
                         <label for="Roles">Roles</label>
-                        <select asp-for="Role" class="form-control" asp-items="ViewBag.Roles" >
+                        <select asp-for="Role" class="form-control" asp-items="ViewBag.Roles">
                         </select>
                         <span asp-validation-for="Role" class="text-danger"></span>
                     </div>

@@ -1,4 +1,6 @@
 ﻿@using SellingMovieTickets.Models.Entities
+<link href="~/assetsadmin/styles/image_index.css" rel="stylesheet" />
+
 @model AdvModel
 @{
     ViewData["Title"] = "Create Adv";
@@ -64,7 +66,7 @@
                                 <label for="ImageUpload">Hình ảnh</label>
                                 <input asp-for="ImageUpload" class="form-control-file" title="Tải lên hình ảnh" />
                                 <span asp-validation-for="ImageUpload" class="text-danger"></span>
-                                <img id="imgpreview" class="pt-2" />
+                                <img id="imgpreview" class="pt-2 style_imageAdmin" />
                             </div>
                             <div class="form-group">
                                 <label for="Link">Link</label>

@@ -71,8 +71,10 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                 .ToListAsync();
 
             var rooms = await _context.Rooms
-                .Select(r => new { r.Id, r.RoomNumber })
-                .ToListAsync();
+               .Where(r => r.StatusRoom == StatusRoom.Active)
+               .Select(r => new { r.Id, r.RoomNumber })
+               .ToListAsync();
+
 
             var viewModel = new CreateCinemaShowTime
             {
@@ -88,7 +90,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
         public async Task<IActionResult> Create(CreateCinemaShowTime cinemaShowTime)
         {
             var movies = await _context.Movies.Select(m => new { m.Id, m.Name }).ToListAsync();
-            var rooms = await _context.Rooms.Select(r => new { r.Id, r.RoomNumber }).ToListAsync();
+            var rooms = await _context.Rooms.Where(r => r.StatusRoom == StatusRoom.Active).Select(r => new { r.Id, r.RoomNumber }).ToListAsync();
             cinemaShowTime.MovieIds = new SelectList(movies, "Id", "Name");
             cinemaShowTime.NumberRooms = new SelectList(rooms, "Id", "RoomNumber");
 
@@ -138,7 +140,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
         {
             var cinemaShowTime = await _context.CinemaShowTimes.FindAsync(id);
             var movies = await _context.Movies.Select(m => new { m.Id, m.Name }).ToListAsync();
-            var rooms = await _context.Rooms.Select(r => new { r.Id, r.RoomNumber }).ToListAsync();
+            var rooms = await _context.Rooms.Where(r => r.StatusRoom == StatusRoom.Active).Select(r => new { r.Id, r.RoomNumber }).ToListAsync();
 
             if (cinemaShowTime == null)
             {
@@ -167,7 +169,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
         public async Task<IActionResult> Edit(int id, UpdateCinemaShowTime updateCinemaST)
         {
             var movies = await _context.Movies.Select(m => new { m.Id, m.Name }).ToListAsync();
-            var rooms = await _context.Rooms.Select(r => new { r.Id, r.RoomNumber }).ToListAsync();
+            var rooms = await _context.Rooms.Where(r => r.StatusRoom == StatusRoom.Active).Select(r => new { r.Id, r.RoomNumber }).ToListAsync();
             updateCinemaST.MovieIds = new SelectList(movies, "Id", "Name");
             updateCinemaST.NumberRooms = new SelectList(rooms, "Id", "RoomNumber");
 
