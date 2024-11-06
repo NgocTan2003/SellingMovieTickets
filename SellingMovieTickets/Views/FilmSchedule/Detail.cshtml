@@ -1,6 +1,7 @@
-﻿@using SellingMovieTickets.Areas.Admin.Models.ViewModels.Movie
+﻿@using SellingMovieTickets.Models.ViewModels.CinemaShowTimes
 <link href="~/css/filmschedule.css" rel="stylesheet" />
-@model MovieWithShowTime
+<link href="~/css/common.css" rel="stylesheet" />
+@model CinemaShowTimeVM
 
 <div class="container mt-5">
     <div class="row">
@@ -109,6 +110,7 @@
         var totalPrice = 0;
         const paymentUrl = '@Url.Action("Index", "Payment")';
         var movieBooking = {
+            ShowTimeId: @Html.Raw(Json.Serialize(Model.Id)),
             filmName: @Html.Raw(Json.Serialize(Model.MovieVM.Name)),
             movieFormat: @Html.Raw(Json.Serialize(Model.MovieVM.MovieFormat)),
             roomName: @Html.Raw(Json.Serialize(Model.RoomVM.RoomNumber)),
@@ -132,12 +134,12 @@
                 const dayOfWeek = date.toLocaleDateString('vi-VN', { weekday: 'long' });
 
                 const calendarItem = `
-                                                                                                                                                                                                                                    <div class="calendar-item ${i === 0 ? 'active' : ''}">
-                                                                                                                                                                                                                                        <span>Th. ${month}</span>
-                                                                                                                                                                                                                                        <span class="day-number">${day}</span>
-                                                                                                                                                                                                                                        <span class="day-name">${dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1)}</span>
-                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                `;
+                                                                                                                                                                                                                                                    <div class="calendar-item ${i === 0 ? 'active' : ''}">
+                                                                                                                                                                                                                                                        <span>Th. ${month}</span>
+                                                                                                                                                                                                                                                        <span class="day-number">${day}</span>
+                                                                                                                                                                                                                                                        <span class="day-name">${dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1)}</span>
+                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                `;
                 $('.dateButtons').append(calendarItem);
             }
         }
@@ -220,7 +222,6 @@
         }
 
         $(".btn-pay").click(function () {
-            console.log(movieBooking);
             localStorage.setItem('state', JSON.stringify(movieBooking));
         });
 

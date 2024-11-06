@@ -1,4 +1,4 @@
-﻿namespace SellingMovieTickets.Areas.Admin.Services
+﻿namespace SellingMovieTickets.Areas.Admin.Services.Interfaces
 {
     public interface IEmailSender
     {

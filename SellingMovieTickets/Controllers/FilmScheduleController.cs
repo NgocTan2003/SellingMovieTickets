@@ -4,6 +4,7 @@ using SellingMovieTickets.Areas.Admin.Models.ViewModels.Movie;
 using SellingMovieTickets.Areas.Admin.Models.ViewModels.Room;
 using SellingMovieTickets.Models.Entities;
 using SellingMovieTickets.Models.Enum;
+using SellingMovieTickets.Models.ViewModels.CinemaShowTimes;
 using SellingMovieTickets.Repository;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -107,7 +108,7 @@ namespace SellingMovieTickets.Controllers
                 })
                 .FirstOrDefaultAsync();
 
-            var movieST = new MovieWithShowTime();
+            var movieST = new CinemaShowTimeVM();
             movieST.Id = id;
             movieST.StartShowTime = showTimes.StartShowTime;
             movieST.MovieVM = MapToMovieViewModel(showTimes.Movie, showTimes.Genres);
@@ -115,7 +116,6 @@ namespace SellingMovieTickets.Controllers
 
             return View(movieST);
         }
-
 
 
 

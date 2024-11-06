@@ -19,7 +19,8 @@ namespace SellingMovieTickets.Models.Entities
         [Required(ErrorMessage = "Yêu cầu nhập mô tả")]
         public string Description { get; set; }
         public string Image { get; set; }
-        [NotMapped]       [FileExtension]
+        [NotMapped]
+        [FileExtension]
         public IFormFile ImageUpload { get; set; }
         public Status Status { get; set; }
 

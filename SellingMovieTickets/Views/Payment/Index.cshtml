@@ -1,36 +1,37 @@
 ﻿<link href="~/css/payment.css" rel="stylesheet" />
+<link href="~/css/common.css" rel="stylesheet" />
 
 <div class="container my-5">
     <div class="row">
         <!-- Movie Information -->
         <div class="col-md-8">
             <div class="card seat-info">
-                <h5 class="text-white">Thông tin phim</h5>
+                <h5 class="text-white fz-16">Thông tin phim</h5>
                 <div class="row">
                     <div class="col-6">
-                        <p class="text-white">Phim<br><strong class="movieName">CHÙM PHIM TÀI LIỆU 3 -TI6-LHP TÀI LIỆU</strong></p>
-                        <p class="text-white">Ngày giờ chiếu<br><strong class="movieTime text-warning"></strong></p>
-                        <p class="text-white">Định dạng<br><strong class="movieFormat"></strong></p>
+                        <p class="text-white fz-16">Phim<br><strong class="movieName"></strong></p>
+                        <p class="text-white fz-16">Ngày giờ chiếu<br><strong class="movieTime text-warning"></strong></p>
+                        <p class="text-white fz-16">Định dạng<br><strong class="movieFormat"></strong></p>
                     </div>
                     <div class="col-6 text-right">
-                        <p class="text-white">Ghế<br><strong class="movieSeats"></strong></p>
-                        <p class="text-white">Phòng chiếu<br><strong class="movieRoom"></strong></p>
+                        <p class="text-white fz-16">Ghế<br><strong class="movieSeats"></strong></p>
+                        <p class="text-white fz-16">Phòng chiếu<br><strong class="movieRoom"></strong></p>
                     </div>
                 </div>
             </div>
 
             <div class="card mt-4 seat-info">
-                <h5 class="text-white">Thông tin thanh toán</h5>
+                <h5 class="text-white fz-16">Thông tin thanh toán</h5>
                 <table class="table table-borderless text-white">
                     <thead>
-                        <tr>
+                        <tr class="fz-16">
                             <th>Danh mục</th>
                             <th class="text-center">Số lượng</th>
                             <th class="text-right">Tổng tiền</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
+                        <tr class="fz-16">
                             <td class="listSeat">Ghế</td>
                             <td class="text-center totalTicket"></td>
                             <td class="text-right totalPrice"></td>
@@ -41,44 +42,39 @@
         </div>
 
         <div class="col-md-4">
-            <div class="card payment-method">
+            <div class="card payment-method fz-16">
                 <h5 class="text-white">Phương thức thanh toán</h5>
                 <div>
-                    <input type="radio" id="vietqr" name="payment" value="vietqr">
-                    <label for="vietqr"><img src="" alt="VietQR" style="width: 24px; height: 24px;"> VietQR</label>
+                    <input class="payment" type="radio" id="vietqr" name="payment" value="vietqr" checked>
+                    <label for="vietqr"><img src="~/media/image/vietqr.jpg" alt="VietQR" class="imgPaymentMethod">VietQR</label>
                 </div>
                 <div>
-                    <input type="radio" id="vnpay" name="payment" value="vnpay">
-                    <label for="vnpay"><img src="" alt="VNPAY" style="width: 24px; height: 24px;"> VNPAY</label>
+                    <input class="payment" type="radio" id="vnpay" name="payment" value="vnpay">
+                    <label for="vnpay"><img src="~/media/image/vnpay.png" alt="VnPay" class="imgPaymentMethod">VnPay</label>
                 </div>
                 <div>
-                    <input type="radio" id="viettel" name="payment" value="viettel">
-                    <label for="viettel"><img src="" alt="Viettel Money" style="width: 24px; height: 24px;"> Viettel Money</label>
-                </div>
-                <div>
-                    <input type="radio" id="payoo" name="payment" value="payoo">
-                    <label for="payoo"><img src="" alt="Payoo" style="width: 24px; height: 24px;"> Payoo</label>
+                    <input class="payment" type="radio" id="momo" name="payment" value="momo">
+                    <label for="momo"><img src="~/media/image/momo.png" alt="MoMo" class="imgPaymentMethod">MoMo</label>
                 </div>
             </div>
-
-            <div class="card mt-4 total-info">
+            <div class="card mt-4 total-info fz-16">
                 <h5 class="text-white">Chi phí</h5>
                 <div class="d-flex justify-content-between cost">
                     <p class="text-white">Thanh toán</p>
-                    <p class="text-white totalPrice">60.000đ</p>
+                    <p class="text-white totalPrice"></p>
                 </div>
                 <div class="d-flex justify-content-between cost">
                     <p class="text-white">Phí</p>
-                    <p class="text-white">0đ</p>
+                    <p class="text-white"></p>
                 </div>
                 <div class="d-flex justify-content-between cost">
                     <p><strong class="text-white">Tổng cộng</strong></p>
                     <p><strong class="text-white totalPrice"></strong></p>
                 </div>
-                <a href="#" class="btn btn-pay mt-3" id="payButton">Thanh toán</a>
-                <a href="#" class="btn btn-back mt-3" id="BackButton">Quay lại</a>
+                <button href="#" class="btn btn-pay mt-3" id="payButton">Thanh toán</button>
+                <button href="#" class="btn btn-back mt-3" id="BackButton">Quay lại</button>
 
-                <p class="text-muted mt-2">Lưu ý: Không mua vé cho trẻ em dưới 13 tuổi đối với các suất chiếu phim kết thúc sau 22h00 và không mua vé cho trẻ em dưới 16 tuổi đối với các suất chiếu phim kết thúc sau 23h00.</p>
+                <p class="mt-2" style="color: #F97316">Lưu ý: Không mua vé cho trẻ em dưới 13 tuổi đối với các suất chiếu phim kết thúc sau 22h00 và không mua vé cho trẻ em dưới 16 tuổi đối với các suất chiếu phim kết thúc sau 23h00.</p>
             </div>
         </div>
     </div>
@@ -94,8 +90,10 @@
 
             const movieBooking = JSON.parse(localStorage.getItem('state'));
             $(document).ready(function () {
-                init();
-                console.log(movieBooking);
+                if (movieBooking != null) {
+                    init();
+                    console.log(movieBooking);
+                }
             });
 
             function init() {
@@ -129,6 +127,37 @@
                 });
                 seats = seatNames.join(", ");
             }
+
+            $('#payButton').on('click', function () {
+                const selectedPayment = $('input[name="payment"]:checked').val();
+
+                const paymentInfo = {
+                    ShowTimeId: movieBooking.ShowTimeId,
+                    PaymentType: selectedPayment,
+                    TotalAmount: totalPrice,
+                    OrderDetails: movieBooking.items.map(item => ({
+                        SeatNumber: item.seatName,
+                        Price: item.seatPrice
+                    }))
+                };
+
+                console.log(paymentInfo);
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Checkout", "Payment")',
+                    contentType: 'application/json',
+                    data: JSON.stringify(paymentInfo),
+                    success: function (response) {
+                        window.location.href = '@Url.Action("Success", "Payment")';
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                        alert('Có lỗi xảy ra khi thanh toán.');
+                    }
+                });
+            });
+
 
         });
     </script>

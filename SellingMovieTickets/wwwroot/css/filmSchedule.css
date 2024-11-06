@@ -1,11 +1,4 @@
-﻿.fz-16 {
-    font-size: 16px;
-}
-
-.fz-18 {
-    font-size: 18px;
-}
-
+﻿
 /* Index */
 @media (min-width: 1200px) {
     .container {
@@ -198,6 +191,10 @@
     cursor: pointer;
 }
 
+    .btn-back:hover {
+        color: white;
+    }
+
 .btn-pay {
     background-color: #f43f5e;
     opacity: 0.6;
@@ -210,5 +207,6 @@
 
     .btn-pay:hover {
         transform: scale(1.05);
-        transition: transform 0.3s ease-in-out;
+        transition:  0.3s ease-in-out;
+        color: white;
     }

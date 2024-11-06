@@ -21,7 +21,7 @@ namespace SellingMovieTickets.Repository
         public DbSet<AppUserModel> Users { get; set; }
         public DbSet<TicketModel> Tickets { get; set; }
         public DbSet<PaymentModel> Payments { get; set; }
-        public DbSet<Promotion> Promotions { get; set; }
+        public DbSet<PromotionModel> Promotions { get; set; }
         public DbSet<OtherServicesModel> OtherServices { get; set; }
         public DbSet<OtherServicesOrderModel> OtherServicesOrders { get; set; }
         public DbSet<ReviewModel> Reviews { get; set; }
@@ -30,6 +30,11 @@ namespace SellingMovieTickets.Repository
         public DbSet<CategoryModel> Categories { get; set; }
         public DbSet<AdvModel> Advs { get; set; }
         public DbSet<NewsModel> News { get; set; }
+        public DbSet<OrderModel> Orders { get; set; }
+        public DbSet<OrderDetailModel> OrderDetails { get; set; }
+        public DbSet<CustomerManagementModel> CustomerManagements { get; set; }
+        public DbSet<CustomerPointsModel> CustomerPoints { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

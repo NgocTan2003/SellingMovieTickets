@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using SellingMovieTickets.Areas.Admin.Services;
+using Microsoft.EntityFrameworkCore;
+using SellingMovieTickets.Areas.Admin.Services.Interfaces;
 using SellingMovieTickets.Models.Entities;
 using SellingMovieTickets.Models.Enum;
+using SellingMovieTickets.Models.ViewModels.Accounts;
 using SellingMovieTickets.Models.ViewModels.Users;
+using SellingMovieTickets.Repository;
 using System.Data;
 using System.Security.Claims;
 
@@ -16,14 +19,17 @@ namespace SellingMovieTickets.Controllers
         private SignInManager<AppUserModel> _signInManager;
         private readonly IEmailSender _emailSender;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly DataContext _dataContext;
+
 
         public AccountController(UserManager<AppUserModel> userManager, SignInManager<AppUserModel> signInManager, IEmailSender emailSender,
-             RoleManager<IdentityRole> roleManager)
+             RoleManager<IdentityRole> roleManager, DataContext dataContext)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
             _roleManager = roleManager;
+            _dataContext = dataContext;
         }
 
         public IActionResult Login()
@@ -147,6 +153,81 @@ namespace SellingMovieTickets.Controllers
         {
             await _signInManager.SignOutAsync();
             return Redirect(returnUrl);
+        }
+
+        public async Task<IActionResult> ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SendEmailForgotPass(AppUserModel model)
+        {
+            var checkMail = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
+            if (checkMail == null)
+            {
+                TempData["Error"] = "Không tìm thấy Email";
+                return RedirectToAction("ForgotPassword", "Account");
+            }
+            else
+            {
+                string token = Guid.NewGuid().ToString();
+                checkMail.Token = token;
+                _dataContext.Update(checkMail);
+                await _dataContext.SaveChangesAsync();
+                var receiver = checkMail.Email;
+                var subject = "Đổi mật khẩu tài khoản";
+                var message = $@"
+                            <div>Chúng tôi đã nhận được yêu cầu đặt lại mật khẩu UMI Cinema của bạn.</div>
+                            <a href='{Request.Scheme}://{Request.Host}/Account/ResetPassword?Email={checkMail.Email}&token={token}' 
+                               style='display: inline-block; padding: 10px 20px; font-size: 16px; color: #fff; background-color: #007bff; text-decoration: none; border-radius: 5px;'>
+                               Đặt lại mật khẩu
+                            </a>";
+                await _emailSender.SendEmailAsync(receiver, subject, message);
+            }
+
+            TempData["Success"] = "Vui lòng kiểm tra Email bạn đã đăng ký tài khoản";
+            return RedirectToAction("ForgotPassword", "Account");
+        }
+
+        public async Task<IActionResult> ResetPassword(AppUserModel user, string token)
+        {
+            var checkUser = await _userManager.Users.Where(u => u.Email == user.Email)
+                .Where(u => u.Token == token).FirstOrDefaultAsync();
+
+            if (checkUser != null)
+            {
+                ViewBag.Email = checkUser.Email;
+                ViewBag.Token = token;
+            }
+            else
+            {
+                TempData["Error"] = "Email không tìm thấy hoặc token bị sai";
+                return RedirectToAction("ForgotPassword", "Account");
+            }
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateResetPassword(ResetPassword user, string token)
+        {
+            var checkUser = await _userManager.Users.Where(u => u.Email == user.Email).Where(u => u.Token == token).FirstOrDefaultAsync();
+            if (checkUser != null)
+            {
+                string newToken = Guid.NewGuid().ToString();
+                var passwordHasher = new PasswordHasher<AppUserModel>();
+                var passwordHash = passwordHasher.HashPassword(checkUser, user.Password);
+                checkUser.PasswordHash = passwordHash;
+                checkUser.Token = newToken;
+                await _userManager.UpdateAsync(checkUser);
+                TempData["Success"] = "Mật khẩu câpj nhật thành công";
+                return RedirectToAction("Login", "Account");
+            }
+            else
+            {
+                TempData["Error"] = "Email không tìm thấy hoặc token không đúng";
+                return RedirectToAction("ForgotPassword", "Account");
+            }
         }
 
     }

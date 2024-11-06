@@ -3,7 +3,7 @@
 namespace SellingMovieTickets.Models.Entities
 {
     // bảng khuyến mãi
-    public class Promotion : CommonAbstract
+    public class PromotionModel : CommonAbstract
     {
         [Key]
         public int Id { get; set; }
@@ -20,5 +20,8 @@ namespace SellingMovieTickets.Models.Entities
         public DateTime CreateDate { get; set; }
         public string? ModifiedBy { get; set; }
         public DateTime ModifiedDate { get; set; }
+
+        public ICollection<TicketModel>? Tickets { get; set; }
+        public ICollection<OrderModel>? Orders { get; set; }
     }
 }

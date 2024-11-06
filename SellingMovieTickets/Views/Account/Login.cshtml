@@ -1,7 +1,7 @@
 ﻿@using SellingMovieTickets.Models.ViewModels.Users
 @model LoginAccount
 @{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = "Đăng nhập";
 }
 
 <section style="margin-top: 180px">
@@ -22,9 +22,9 @@
                             <span asp-validation-for="Password" class="text-danger" />
                         </div>
                         <div class="d-flex justify-content-end mb-1">
-                            <a href="" class="forgot-password">Quên mật khẩu?</a>
+                            <a asp-controller="Account" asp-action="ForgotPassword" class="forgot-password">Quên mật khẩu?</a>
                         </div>
-                        <a asp-action="Login" asp-controller="Account" class="btn btn-default"> Đăng nhập</a>
+                        <button class="btn btn-default"> Đăng nhập</button>
                         <div class="box_optionRegister">
                             <p class="text-white">
                                 Bạn chưa có tài khoản?

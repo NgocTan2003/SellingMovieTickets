@@ -14,8 +14,9 @@
     cursor: pointer;
 }
 
-    .btn-pay:hover {
+    .btn-pay:hover, .btn-back:hover {
         cursor: pointer;
+        color: #e4e6eb;
     }
 
     .btn-pay.active {
@@ -25,13 +26,16 @@
 
 .btn-back {
     background-color: transparent;
-    border: 1px solid #e4e6eb;
     color: #e4e6eb;
     margin-right: 10px;
     border-radius: 20px;
     padding: 10px 25px;
     cursor: pointer;
 }
+
+    .btn-back:hover {
+        background-color: #1E293B;
+    }
 
 .seat-info, .payment-method, .total-info {
     padding: 20px;
@@ -62,3 +66,10 @@
     .total-info .cost {
         font-size: 18px;
     }
+
+.imgPaymentMethod {
+    width: 50px;
+    height: 28px;
+    object-fit: contain;
+    margin-right: 6px;
+}

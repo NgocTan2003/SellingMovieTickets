@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualBasic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SellingMovieTickets.Models.Entities
 {
@@ -8,11 +9,9 @@ namespace SellingMovieTickets.Models.Entities
     {
         [Key]
         public int Id { get; set; }
-        public DateTime OrderDate { get; set; }
         public int Quantity { get; set; }
-
-        public int UserId { get; set; }
-        public AppUserModel User { get; set; }
+        [Column(TypeName = "decimal(10, 3)")]
+        public double TotalAmount { get; set; }
 
         public int OtherServicesId { get; set; }
         public OtherServicesModel OtherServices { get; set; }

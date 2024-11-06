@@ -10,6 +10,7 @@ namespace SellingMovieTickets.Models.Entities
         [Required]
         public Gender Gender { get; set; }
         public string? Avatar { get; set; }
+        public string? Token { get; set; }
 
         public string? CreateBy { get; set; }
         public DateTime CreateDate { get; set; }

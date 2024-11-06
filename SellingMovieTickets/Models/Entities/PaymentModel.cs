@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SellingMovieTickets.Models.Enum;
+using System.ComponentModel.DataAnnotations;
 using System.Net.Sockets;
 
 namespace SellingMovieTickets.Models.Entities
@@ -9,7 +10,7 @@ namespace SellingMovieTickets.Models.Entities
         public int Id { get; set; }
         public DateTime PaymentDate { get; set; }
         public decimal Amount { get; set; }
-        public string PaymentMethod { get; set; }
+        public string PaymentType { get; set; }
 
         public int TicketId { get; set; }
         public TicketModel Ticket { get; set; }

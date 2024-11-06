@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
-using SellingMovieTickets.Areas.Admin.Services;
+using SellingMovieTickets.Areas.Admin.Services.Implements;
+using SellingMovieTickets.Areas.Admin.Services.Interfaces;
 using SellingMovieTickets.Models.Entities;
 using SellingMovieTickets.Models.Enum;
 using SellingMovieTickets.Repository;
+using SellingMovieTickets.Services.Implements;
+using SellingMovieTickets.Services.Interfaces;
 using System.Data;
 using System.Globalization;
 
@@ -46,6 +49,8 @@ builder.Services.Configure<IdentityOptions>(options =>
 });
 
 builder.Services.AddAuthorization();
+
+builder.Services.AddSingleton<IVnPayService, VNPayService>();
 
 var app = builder.Build();
 

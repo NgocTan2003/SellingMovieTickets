@@ -1,28 +1,24 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SellingMovieTickets.Models.Enum;
+using System.ComponentModel.DataAnnotations;
 
 namespace SellingMovieTickets.Models.Entities
 {
-    public class TicketModel : CommonAbstract
+    public class TicketModel : CommonAbstract, CommonPayment
     {
         [Key]
         public int Id { get; set; }
-        [Required(ErrorMessage = "Giá vé không được bỏ trống")]
-        public decimal Price { get; set; }
-        [Required(ErrorMessage = "Ngày mua vé không được bỏ trống")]
-        public DateTime PurchaseDate { get; set; }
-        [Required(ErrorMessage = "Trạng thái thanh toán không được bỏ trống")]
-        public string PaymentStatus { get; set; }
-        [Required(ErrorMessage = "Hình thức thanh toán không được bỏ trống")]
-        public string TicketType { get; set; }
+        public string NameMovie { get; set; }
+        public string TicketCode { get; set; }
+        public DateTime StartShowTime { get; set; }
+        public DateTime PaymentTime { get; set; }
 
-        public int CinemaShowTimeId { get; set; }
-        public CinemaShowTimeModel CinemaShowTime { get; set; }
+        public decimal ConcessionAmount { get; set; } // Số tiền phụ phí bỏng nước
+        public decimal TotalAmount { get; set; }      // Tổng tiền
+        public decimal DiscountAmount { get; set; }   // Số tiền giảm giá
+        public decimal PaymentAmount { get; set; }    // Số tiền phải thanh toán
 
-        public string SeatNumber { get; set; }
+        public string SeatNames { get; set; }
         public string RoomNumber { get; set; }
-
-        public int UserId { get; set; }
-        public AppUserModel AppUser { get; set; }
 
         public string? CreateBy { get; set; }
         public DateTime CreateDate { get; set; }
