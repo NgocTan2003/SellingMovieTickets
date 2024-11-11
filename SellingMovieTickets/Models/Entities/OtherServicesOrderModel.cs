@@ -11,10 +11,15 @@ namespace SellingMovieTickets.Models.Entities
         public int Id { get; set; }
         public int Quantity { get; set; }
         [Column(TypeName = "decimal(10, 3)")]
-        public double TotalAmount { get; set; }
+        public decimal TotalAmount { get; set; }
 
         public int OtherServicesId { get; set; }
         public OtherServicesModel OtherServices { get; set; }
+
+        public int OrderId { get; set; }
+        public OrderModel Order { get; set; }  
+
+
 
         public string? CreateBy { get; set; }
         public DateTime CreateDate { get; set; }

@@ -126,17 +126,25 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
+            var isLoggedIn = @User.Identity.IsAuthenticated.ToString().ToLower();
+
             $.ajax({
                 url: '@Url.Action("MenuTop", "Menu")',
                 type: 'GET',
                 success: function (data) {
-                    // Kiểm tra nếu có dữ liệu trả về
                     if (data && data.length) {
                         var menuHtml = '';
                         data.forEach(function (item) {
-                            menuHtml += `<li class="nav-item active">
-                                             <a href="/${item.slug}" class="nav-link nav_item">${item.name}</a>
-                                         </li>`;
+                            const loginUrl = '@Url.Action("Login", "Account")';
+                            if (item.slug === "lich-chieu" && !isLoggedIn) {
+                                menuHtml += `<li class="nav-item active">
+                                                    <a href="${loginUrl}" class="nav-link nav_item">${item.name}</a>
+                                             </li>`;
+                            } else {
+                                menuHtml += `<li class="nav-item active">
+                                                     <a href="/${item.slug}" class="nav-link nav_item">${item.name}</a>
+                                                 </li>`;
+                            }
                         });
                         $('#menuList').html(menuHtml);
                     }

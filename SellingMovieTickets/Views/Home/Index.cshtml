@@ -77,8 +77,6 @@
                 type: 'GET',
                 success: function (data) {
                     $('.movieNowShowingItem').prepend(data);
-                    console.log("success movieNowShowing");
-
                 },
                 error: function () {
                     console.log("Error loading movieNowShowing");
@@ -90,8 +88,6 @@
                 type: 'GET',
                 success: function (data) {
                     $('.movieCommingSoonItem').prepend(data);
-                    console.log("success movieNowShowing");
-
                 },
                 error: function () {
                     console.log("Error loading MovieCommingSoon");

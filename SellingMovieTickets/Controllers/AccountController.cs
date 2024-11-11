@@ -9,6 +9,7 @@ using SellingMovieTickets.Models.ViewModels.Accounts;
 using SellingMovieTickets.Models.ViewModels.Users;
 using SellingMovieTickets.Repository;
 using System.Data;
+using System.Net.Sockets;
 using System.Security.Claims;
 
 namespace SellingMovieTickets.Controllers
@@ -132,6 +133,13 @@ namespace SellingMovieTickets.Controllers
 
                 if (result.Succeeded && AddRole.Succeeded)
                 {
+                    CustomerManagementModel customerManagement = new CustomerManagementModel
+                    {
+                        UserId = newUser.Id,
+                        CreateDate = DateTime.Now
+                    };
+                    await _dataContext.CustomerManagements.AddAsync(customerManagement);
+                    await _dataContext.SaveChangesAsync();
                     TempData["Success"] = "Tạo tài khoản thành công";
                     return RedirectToAction("Login");
                 }

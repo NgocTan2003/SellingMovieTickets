@@ -167,6 +167,13 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                         }
                     }
 
+                    CustomerManagementModel customerManagement = new CustomerManagementModel
+                    {
+                        UserId = user.Id,
+                        CreateDate = DateTime.Now
+                    };
+                    await _dataContext.CustomerManagements.AddAsync(customerManagement);
+                    await _dataContext.SaveChangesAsync();
 
                     TempData["Success"] = "Tạo tài khoản thành công.";
                     return RedirectToAction("Index", "Account");

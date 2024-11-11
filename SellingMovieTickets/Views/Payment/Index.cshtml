@@ -21,6 +21,12 @@
             </div>
 
             <div class="card mt-4 seat-info">
+                <div class="container-title">Đặt hàng sản phẩm</div>
+                <div class="row containerOtherservices">
+                </div>
+            </div>
+
+            <div class="card mt-4 seat-info">
                 <h5 class="text-white fz-16">Thông tin thanh toán</h5>
                 <table class="table table-borderless text-white">
                     <thead>
@@ -30,11 +36,11 @@
                             <th class="text-right">Tổng tiền</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="tbody">
                         <tr class="fz-16">
                             <td class="listSeat">Ghế</td>
                             <td class="text-center totalTicket"></td>
-                            <td class="text-right totalPrice"></td>
+                            <td class="text-right totalPrice totalPriceTicket"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -57,19 +63,23 @@
                     <label for="momo"><img src="~/media/image/momo.png" alt="MoMo" class="imgPaymentMethod">MoMo</label>
                 </div>
             </div>
-            <div class="card mt-4 total-info fz-16">
-                <h5 class="text-white">Chi phí</h5>
+            <div class="card mt-4 total-info">
+                <h5 class="text-white fz-16">Chi phí</h5>
                 <div class="d-flex justify-content-between cost">
-                    <p class="text-white">Thanh toán</p>
-                    <p class="text-white totalPrice"></p>
+                    <p class="text-white fz-16">Tiền vé</p>
+                    <p class="text-white totalPriceTicket fz-16"></p>
                 </div>
                 <div class="d-flex justify-content-between cost">
-                    <p class="text-white">Phí</p>
-                    <p class="text-white"></p>
+                    <p class="text-white fz-16">Tiền bỏng/nước</p>
+                    <p class="text-white fz-16 totalPriceService"></p>
                 </div>
                 <div class="d-flex justify-content-between cost">
-                    <p><strong class="text-white">Tổng cộng</strong></p>
-                    <p><strong class="text-white totalPrice"></strong></p>
+                    <p class="text-white fz-16">Giảm giá</p>
+                    <p class="text-white fz-16 totalPricePromotion"></p>
+                </div>
+                <div class="d-flex justify-content-between cost">
+                    <p><strong class="text-white fz-16">Tổng cộng</strong></p>
+                    <p><strong class="text-white totalAmount fz-16"></strong></p>
                 </div>
                 <button href="#" class="btn btn-pay mt-3" id="payButton">Thanh toán</button>
                 <button href="#" class="btn btn-back mt-3" id="BackButton">Quay lại</button>
@@ -84,9 +94,22 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script>
         $(document).ready(function () {
-            let seats = "";
-            let totalPrice = 0;
-            let countSeat = 0;
+            let seats = ""; // ds ghế
+            let totalPrice = 0; // tổng tiền vé
+            let totalPriceServices = 0;
+            let otherServices = []; // ds dịch vụ
+            let productIdCLick = 0;
+            let PaymentInfo = {
+                SeatNames: "",
+                ShowTimeId: 0,
+                PromotionId: null,
+                PaymentType: "",
+                ConcessionAmount: 0,
+                DiscountAmount: 0,
+                PaymentAmount: 0,
+                OrderSeats: [],
+                OtherServices: []
+            };
 
             const movieBooking = JSON.parse(localStorage.getItem('state'));
             $(document).ready(function () {
@@ -94,10 +117,79 @@
                     init();
                     console.log(movieBooking);
                 }
+
+                $(document).on('click', '.product-card', function () {
+                    const productIdCLick = $(this).find('.productId').val();
+                    const productName = $(this).find('.product-name').text();
+                    const productPrice = parseInt($(this).find('.product-price').text().replace('Giá: ', '').replace('.000đ', ''));
+
+                    if ($(this).hasClass('selected-border')) {
+                        // Nếu sp đã được chọn, gỡ class và xóa hàng tương ứng trong bảng
+                        $(this).removeClass('selected-border');
+                        $('.tbody').find(`tr[data-id="${productIdCLick}"]`).remove();
+                        console.log(productIdCLick)
+                        updateOtherServices("remove", parseInt(productIdCLick));
+                    } else {
+                        // Nếu sp chưa được chọn, thêm class và thêm hàng mới vào bảng
+                        $(this).addClass('selected-border');
+                        updateOtherServices("changeQuantity", parseInt(productIdCLick), 1);
+                        const newRow = `
+                                                                <tr class="fz-16 rowItemOtherService" data-id="${productIdCLick}">
+                                                                    <td class="name">${productName}</td>
+                                                                    <td class="text-center">
+                                                                        <button class="btn btn-sm btn-outline-secondary decrease-qty" data-id="${productIdCLick}">-</button>
+                                                                        <span class="count" data-id="${productIdCLick}">1</span>
+                                                                        <button class="btn btn-sm btn-outline-secondary increase-qty" data-id="${productIdCLick}">+</button>
+                                                                    </td>
+                                                                    <td class="text-right totalPrice" data-id="${productIdCLick}" data-price="${productPrice * 1000}">${(productPrice * 1000).toLocaleString()}đ</td>
+                                                                </tr>`;
+                        $('.tbody').append(newRow);
+                    }
+                });
+
+                // tăng số lượng
+                $(document).on('click', '.increase-qty', function () {
+                    const productId = $(this).data('id');
+                    const countSpan = $(`.count[data-id="${productId}"]`);
+                    let quantity = parseInt(countSpan.text());
+                    quantity++;
+                    countSpan.text(quantity);
+                    updateOtherServices("changeQuantity", productId, quantity);
+                    const pricePerUnit = parseInt($(`.totalPrice[data-price][data-id="${productId}"]`).data('price'));
+                    $(`.totalPrice[data-id="${productId}"]`).text((pricePerUnit * quantity).toLocaleString() + ' đ');
+                });
+
+                // giảm số lượng
+                $(document).on('click', '.decrease-qty', function () {
+                    const productId = $(this).data('id');
+                    const countSpan = $(`.count[data-id="${productId}"]`);
+                    let quantity = parseInt(countSpan.text());
+                    quantity--;
+                    updateOtherServices("changeQuantity", productId, quantity);
+
+                    if (quantity == 0) {
+                        $('.tbody').find(`tr[data-id="${productId}"]`).remove();
+                        $(`.product-card[data-id="${productId}"]`).removeClass('selected-border');
+                        updateOtherServices("remove", productId);
+                    }
+                    countSpan.text(quantity);
+
+                    const pricePerUnit = parseInt($(`.totalPrice[data-price][data-id="${productId}"]`).data('price'));
+                    $(`.totalPrice[data-id="${productId}"]`).text((pricePerUnit * quantity).toLocaleString() + ' đ');
+                });
             });
 
             function init() {
                 getSeats(movieBooking.items);
+                getOtherService();
+
+                PaymentInfo.SeatNames = seats;
+                PaymentInfo.ShowTimeId = movieBooking.ShowTimeId;
+                PaymentInfo.OrderSeats = movieBooking.items.map(item => ({
+                    SeatName: item.seatName,
+                    Price: item.seatPrice
+                }))
+
                 $(".movieName").text(movieBooking.filmName);
                 $(".movieTime").text(changeMovieTime(movieBooking.time));
                 $(".movieFormat").text(movieBooking.movieFormat);
@@ -105,9 +197,10 @@
                 $(".movieRoom").text(movieBooking.roomName);
                 $(".listSeat").text("Ghế " + "(" + seats + ")");
                 $(".totalTicket").text(movieBooking.items.length);
-                $(".totalPrice").text(totalPrice + ".000đ");
+                $(".totalPriceTicket").text(`${(totalPrice * 1000).toLocaleString()}đ`);
             }
 
+            // Chuyển đổi thời gian giờ chiếu
             function changeMovieTime(inputDate) {
                 const date = new Date(inputDate);
                 const hours = date.getHours().toString().padStart(2, '0');
@@ -119,6 +212,7 @@
                 return formattedDate;
             }
 
+            // Lấy danh sách ghế chọn
             function getSeats(listSeat) {
                 let seatNames = [];
                 listSeat.forEach(item => {
@@ -128,26 +222,77 @@
                 seats = seatNames.join(", ");
             }
 
+            // Lấy ds dịch vụ
+            function getOtherService() {
+                $.ajax({
+                    url: '@Url.Action("GetListOtherServices", "OtherServices")',
+                    type: 'GET',
+                    success: function (data) {
+                        otherServices = data;
+                        $('.containerOtherservices').empty();
+                        data.forEach(service => {
+                            const serviceHtml = `
+                                                                                                                                            <div class="col-md-3 col-sm-6 mb-4">
+                                                                                                                                                    <div class="product-card" data-id="${service.id}">
+                                                                                                                                                    <input hidden class="productId" value="${service.id}" />
+                                                                                                                                                    <img src="/media/otherServices/${service.image}" alt="${service.Name}">
+                                                                                                                                                    <div class="product-info">
+                                                                                                                                                                <div class="product-name">${service.name}</div>
+                                                                                                                                                        <div class="product-price">Giá: ${(service.price * 1000).toLocaleString()}đ</div>
+                                                                                                                                                    </div>
+                                                                                                                                                </div>
+                                                                                                                                            </div>
+                                                                                                                                        `;
+                            $('.containerOtherservices').append(serviceHtml);
+                        });
+                    },
+                    error: function () {
+                        console.log("Error loading otherServices");
+                    }
+                });
+            }
+
+            // Lọc lấy ttin dịch vụ
+            function filterOtherServices(id) {
+                return otherServices.find(item => item.id === id);
+            }
+
+            // Cập nhật dịch vụ
+            function updateOtherServices(status, serviceId, quantity) {
+                const existingServiceIndex = PaymentInfo.OtherServices.findIndex(service => service.Id === serviceId);
+                if (status == "changeQuantity") {
+                    if (existingServiceIndex === -1) {
+                        PaymentInfo.OtherServices.push({ Id: serviceId, Quantity: quantity });
+                    } else {
+                        PaymentInfo.OtherServices[existingServiceIndex].Quantity = quantity;
+                    }
+                } else {
+                    PaymentInfo.OtherServices.splice(existingServiceIndex, 1);
+                }
+                CalculationOfServiceMoney();
+            }
+
+            function CalculationOfServiceMoney() {
+                PaymentInfo.ConcessionAmount = 0;
+                PaymentInfo.OtherServices.forEach(item => {
+                    let service = filterOtherServices(item.Id);
+                    PaymentInfo.ConcessionAmount += service.price * item.Quantity;
+                })
+                $('.totalPriceService').text((PaymentInfo.ConcessionAmount * 1000).toLocaleString() + "đ");
+                $('.totalAmount').text(((PaymentInfo.ConcessionAmount + totalPrice) * 1000).toLocaleString() + "đ");
+                PaymentInfo.ConcessionAmount = PaymentInfo.ConcessionAmount;
+                PaymentInfo.PaymentAmount = PaymentInfo.ConcessionAmount + totalPrice;
+            }
+
             $('#payButton').on('click', function () {
                 const selectedPayment = $('input[name="payment"]:checked').val();
-
-                const paymentInfo = {
-                    ShowTimeId: movieBooking.ShowTimeId,
-                    PaymentType: selectedPayment,
-                    TotalAmount: totalPrice,
-                    OrderDetails: movieBooking.items.map(item => ({
-                        SeatNumber: item.seatName,
-                        Price: item.seatPrice
-                    }))
-                };
-
-                console.log(paymentInfo);
-
+                PaymentInfo.PaymentType = selectedPayment;
+                console.log(PaymentInfo)
                 $.ajax({
                     type: 'POST',
                     url: '@Url.Action("Checkout", "Payment")',
                     contentType: 'application/json',
-                    data: JSON.stringify(paymentInfo),
+                    data: JSON.stringify(PaymentInfo),
                     success: function (response) {
                         window.location.href = '@Url.Action("Success", "Payment")';
                     },
@@ -162,3 +307,4 @@
         });
     </script>
 }
+

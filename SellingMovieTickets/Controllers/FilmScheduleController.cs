@@ -105,20 +105,21 @@ namespace SellingMovieTickets.Controllers
                     st.Room,
                     Movie = st.Movie,
                     Genres = string.Join(", ", st.Movie.MovieCategoryMappings.Select(mcm => mcm.MovieCategory.CategoryName))
-                })
-                .FirstOrDefaultAsync();
+                }).FirstOrDefaultAsync();
+
+            var selectedSeats = await _context.Seats
+                .Where(seat => seat.CinemaShowTimeId == id && !seat.IsAvailable)
+                .Select(seat => seat.SeatNumber)
+                .ToListAsync();
 
             var movieST = new CinemaShowTimeVM();
             movieST.Id = id;
             movieST.StartShowTime = showTimes.StartShowTime;
             movieST.MovieVM = MapToMovieViewModel(showTimes.Movie, showTimes.Genres);
             movieST.RoomVM = MapToRoomViewModel(showTimes.Room);
+            movieST.SelectedSeats = selectedSeats;
 
             return View(movieST);
         }
-
-
-
-
     }
 }

@@ -1,5 +1,6 @@
 ﻿using SellingMovieTickets.Models.Enum;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SellingMovieTickets.Models.Entities
 {
@@ -12,9 +13,14 @@ namespace SellingMovieTickets.Models.Entities
         public DateTime StartShowTime { get; set; }
         public DateTime PaymentTime { get; set; }
 
+
+        [Column(TypeName = "decimal(10, 3)")]
         public decimal ConcessionAmount { get; set; } // Số tiền phụ phí bỏng nước
+        [Column(TypeName = "decimal(10, 3)")]
         public decimal TotalAmount { get; set; }      // Tổng tiền
+        [Column(TypeName = "decimal(10, 3)")]
         public decimal DiscountAmount { get; set; }   // Số tiền giảm giá
+        [Column(TypeName = "decimal(10, 3)")]
         public decimal PaymentAmount { get; set; }    // Số tiền phải thanh toán
 
         public string SeatNames { get; set; }

@@ -12,8 +12,8 @@ using SellingMovieTickets.Repository;
 namespace SellingMovieTickets.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20241023192752_updateTBOrtherService")]
-    partial class updateTBOrtherService
+    [Migration("20241111140928_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -266,6 +266,9 @@ namespace SellingMovieTickets.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Token")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
@@ -336,9 +339,6 @@ namespace SellingMovieTickets.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int?>("CinemaShowTimeModelId")
-                        .HasColumnType("int");
-
                     b.Property<string>("CreateBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -365,13 +365,129 @@ namespace SellingMovieTickets.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CinemaShowTimeModelId");
-
                     b.HasIndex("MovieId");
 
                     b.HasIndex("RoomId");
 
                     b.ToTable("CinemaShowTimes");
+                });
+
+            modelBuilder.Entity("SellingMovieTickets.Models.Entities.CustomerManagementModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("AppUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CreateBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CurrentPointsBalance")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("TotalSpent")
+                        .HasColumnType("decimal(10,3)");
+
+                    b.Property<int>("TotalTicketsPurchased")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
+
+                    b.ToTable("CustomerManagements");
+                });
+
+            modelBuilder.Entity("SellingMovieTickets.Models.Entities.CustomerPointsHistoryModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("CreateBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PointChangeStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PointsChanged")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("CustomerPointsHistories");
+                });
+
+            modelBuilder.Entity("SellingMovieTickets.Models.Entities.CustomerPointsModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("CreateBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PointsEarned")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PointsRedeemed")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("CustomerPoints");
                 });
 
             modelBuilder.Entity("SellingMovieTickets.Models.Entities.MovieCategoryMappingModel", b =>
@@ -450,6 +566,9 @@ namespace SellingMovieTickets.Migrations
                     b.Property<string>("Image")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsOutstanding")
+                        .HasColumnType("bit");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -468,6 +587,13 @@ namespace SellingMovieTickets.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Origin")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(10,3)");
+
                     b.Property<string>("Rating")
                         .HasColumnType("nvarchar(max)");
 
@@ -476,6 +602,10 @@ namespace SellingMovieTickets.Migrations
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
+
+                    b.Property<string>("StatusMovie")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TrailerUrl")
                         .HasColumnType("nvarchar(max)");
@@ -540,7 +670,102 @@ namespace SellingMovieTickets.Migrations
                     b.ToTable("News");
                 });
 
-            modelBuilder.Entity("SellingMovieTickets.Models.Entities.OtherServices", b =>
+            modelBuilder.Entity("SellingMovieTickets.Models.Entities.OrderDetailModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("CreateBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("SeatNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("OrderDetails");
+                });
+
+            modelBuilder.Entity("SellingMovieTickets.Models.Entities.OrderModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("CinemaShowTimeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CreateBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CustomerManagementId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("NumberOfTickets")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("OrderDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PaymentType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("PromotionId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TicketId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(10,3)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CinemaShowTimeId");
+
+                    b.HasIndex("CustomerManagementId");
+
+                    b.HasIndex("PromotionId");
+
+                    b.HasIndex("TicketId");
+
+                    b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("SellingMovieTickets.Models.Entities.OtherServicesModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -603,8 +828,8 @@ namespace SellingMovieTickets.Migrations
                     b.Property<DateTime>("ModifiedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("OrderDate")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
 
                     b.Property<int>("OtherServicesId")
                         .HasColumnType("int");
@@ -612,17 +837,14 @@ namespace SellingMovieTickets.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId1")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(10,3)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OtherServicesId");
+                    b.HasIndex("OrderId");
 
-                    b.HasIndex("UserId1");
+                    b.HasIndex("OtherServicesId");
 
                     b.ToTable("OtherServicesOrders");
                 });
@@ -653,7 +875,7 @@ namespace SellingMovieTickets.Migrations
                     b.Property<DateTime>("PaymentDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("PaymentMethod")
+                    b.Property<string>("PaymentType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -667,7 +889,7 @@ namespace SellingMovieTickets.Migrations
                     b.ToTable("Payments");
                 });
 
-            modelBuilder.Entity("SellingMovieTickets.Models.Entities.Promotion", b =>
+            modelBuilder.Entity("SellingMovieTickets.Models.Entities.PromotionModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -713,6 +935,10 @@ namespace SellingMovieTickets.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<string>("AppUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Comment")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -738,17 +964,11 @@ namespace SellingMovieTickets.Migrations
                     b.Property<DateTime>("ReviewDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId1")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("MovieId");
+                    b.HasIndex("AppUserId");
 
-                    b.HasIndex("UserId1");
+                    b.HasIndex("MovieId");
 
                     b.ToTable("Reviews");
                 });
@@ -804,6 +1024,9 @@ namespace SellingMovieTickets.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<int>("CinemaShowTimeId")
+                        .HasColumnType("int");
+
                     b.Property<string>("CreateBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -819,16 +1042,13 @@ namespace SellingMovieTickets.Migrations
                     b.Property<DateTime>("ModifiedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("RoomId")
-                        .HasColumnType("int");
-
                     b.Property<string>("SeatNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RoomId");
+                    b.HasIndex("CinemaShowTimeId");
 
                     b.ToTable("Seats");
                 });
@@ -841,11 +1061,8 @@ namespace SellingMovieTickets.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<string>("AppUserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("CinemaShowTimeId")
-                        .HasColumnType("int");
+                    b.Property<decimal>("ConcessionAmount")
+                        .HasColumnType("decimal(10,3)");
 
                     b.Property<string>("CreateBy")
                         .HasColumnType("nvarchar(max)");
@@ -853,42 +1070,44 @@ namespace SellingMovieTickets.Migrations
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<decimal>("DiscountAmount")
+                        .HasColumnType("decimal(10,3)");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("ModifiedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("PaymentStatus")
+                    b.Property<string>("NameMovie")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<decimal>("PaymentAmount")
+                        .HasColumnType("decimal(10,3)");
 
-                    b.Property<DateTime>("PurchaseDate")
+                    b.Property<DateTime>("PaymentTime")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("RoomNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("SeatNumber")
+                    b.Property<string>("SeatNames")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("TicketType")
+                    b.Property<DateTime>("StartShowTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("TicketCode")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(10,3)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AppUserId");
-
-                    b.HasIndex("CinemaShowTimeId");
 
                     b.ToTable("Tickets");
                 });
@@ -946,10 +1165,6 @@ namespace SellingMovieTickets.Migrations
 
             modelBuilder.Entity("SellingMovieTickets.Models.Entities.CinemaShowTimeModel", b =>
                 {
-                    b.HasOne("SellingMovieTickets.Models.Entities.CinemaShowTimeModel", null)
-                        .WithMany("CinemaShowTimes")
-                        .HasForeignKey("CinemaShowTimeModelId");
-
                     b.HasOne("SellingMovieTickets.Models.Entities.MovieModel", "Movie")
                         .WithMany("CinemaShowTimes")
                         .HasForeignKey("MovieId")
@@ -957,14 +1172,45 @@ namespace SellingMovieTickets.Migrations
                         .IsRequired();
 
                     b.HasOne("SellingMovieTickets.Models.Entities.RoomModel", "Room")
-                        .WithMany()
+                        .WithMany("ShowTimes")
                         .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Movie");
 
                     b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("SellingMovieTickets.Models.Entities.CustomerManagementModel", b =>
+                {
+                    b.HasOne("SellingMovieTickets.Models.Entities.AppUserModel", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("AppUserId");
+
+                    b.Navigation("AppUser");
+                });
+
+            modelBuilder.Entity("SellingMovieTickets.Models.Entities.CustomerPointsHistoryModel", b =>
+                {
+                    b.HasOne("SellingMovieTickets.Models.Entities.CustomerManagementModel", "Customer")
+                        .WithMany("PointsHistory")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("SellingMovieTickets.Models.Entities.CustomerPointsModel", b =>
+                {
+                    b.HasOne("SellingMovieTickets.Models.Entities.CustomerManagementModel", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("SellingMovieTickets.Models.Entities.MovieCategoryMappingModel", b =>
@@ -986,21 +1232,67 @@ namespace SellingMovieTickets.Migrations
                     b.Navigation("MovieCategory");
                 });
 
+            modelBuilder.Entity("SellingMovieTickets.Models.Entities.OrderDetailModel", b =>
+                {
+                    b.HasOne("SellingMovieTickets.Models.Entities.OrderModel", "Order")
+                        .WithMany("OrderDetails")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("SellingMovieTickets.Models.Entities.OrderModel", b =>
+                {
+                    b.HasOne("SellingMovieTickets.Models.Entities.CinemaShowTimeModel", "CinemaShowTime")
+                        .WithMany()
+                        .HasForeignKey("CinemaShowTimeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SellingMovieTickets.Models.Entities.CustomerManagementModel", "CustomerManagement")
+                        .WithMany("OrderModels")
+                        .HasForeignKey("CustomerManagementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SellingMovieTickets.Models.Entities.PromotionModel", "Promotion")
+                        .WithMany("Orders")
+                        .HasForeignKey("PromotionId");
+
+                    b.HasOne("SellingMovieTickets.Models.Entities.TicketModel", "Ticket")
+                        .WithMany()
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CinemaShowTime");
+
+                    b.Navigation("CustomerManagement");
+
+                    b.Navigation("Promotion");
+
+                    b.Navigation("Ticket");
+                });
+
             modelBuilder.Entity("SellingMovieTickets.Models.Entities.OtherServicesOrderModel", b =>
                 {
-                    b.HasOne("SellingMovieTickets.Models.Entities.OtherServices", "OtherServices")
+                    b.HasOne("SellingMovieTickets.Models.Entities.OrderModel", "Order")
+                        .WithMany("OtherServicesOrders")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SellingMovieTickets.Models.Entities.OtherServicesModel", "OtherServices")
                         .WithMany("OtherServicesOrders")
                         .HasForeignKey("OtherServicesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SellingMovieTickets.Models.Entities.AppUserModel", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId1");
+                    b.Navigation("Order");
 
                     b.Navigation("OtherServices");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("SellingMovieTickets.Models.Entities.PaymentModel", b =>
@@ -1016,54 +1308,49 @@ namespace SellingMovieTickets.Migrations
 
             modelBuilder.Entity("SellingMovieTickets.Models.Entities.ReviewModel", b =>
                 {
+                    b.HasOne("SellingMovieTickets.Models.Entities.AppUserModel", "AppUser")
+                        .WithMany("Reviews")
+                        .HasForeignKey("AppUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("SellingMovieTickets.Models.Entities.MovieModel", "Movie")
                         .WithMany()
                         .HasForeignKey("MovieId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SellingMovieTickets.Models.Entities.AppUserModel", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId1");
+                    b.Navigation("AppUser");
 
                     b.Navigation("Movie");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("SellingMovieTickets.Models.Entities.SeatModel", b =>
                 {
-                    b.HasOne("SellingMovieTickets.Models.Entities.RoomModel", "Room")
-                        .WithMany("Seats")
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Room");
-                });
-
-            modelBuilder.Entity("SellingMovieTickets.Models.Entities.TicketModel", b =>
-                {
-                    b.HasOne("SellingMovieTickets.Models.Entities.AppUserModel", "AppUser")
-                        .WithMany()
-                        .HasForeignKey("AppUserId");
-
                     b.HasOne("SellingMovieTickets.Models.Entities.CinemaShowTimeModel", "CinemaShowTime")
-                        .WithMany("Tickets")
+                        .WithMany("Seats")
                         .HasForeignKey("CinemaShowTimeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("AppUser");
-
                     b.Navigation("CinemaShowTime");
+                });
+
+            modelBuilder.Entity("SellingMovieTickets.Models.Entities.AppUserModel", b =>
+                {
+                    b.Navigation("Reviews");
                 });
 
             modelBuilder.Entity("SellingMovieTickets.Models.Entities.CinemaShowTimeModel", b =>
                 {
-                    b.Navigation("CinemaShowTimes");
+                    b.Navigation("Seats");
+                });
 
-                    b.Navigation("Tickets");
+            modelBuilder.Entity("SellingMovieTickets.Models.Entities.CustomerManagementModel", b =>
+                {
+                    b.Navigation("OrderModels");
+
+                    b.Navigation("PointsHistory");
                 });
 
             modelBuilder.Entity("SellingMovieTickets.Models.Entities.MovieCategoryModel", b =>
@@ -1078,14 +1365,26 @@ namespace SellingMovieTickets.Migrations
                     b.Navigation("MovieCategoryMappings");
                 });
 
-            modelBuilder.Entity("SellingMovieTickets.Models.Entities.OtherServices", b =>
+            modelBuilder.Entity("SellingMovieTickets.Models.Entities.OrderModel", b =>
+                {
+                    b.Navigation("OrderDetails");
+
+                    b.Navigation("OtherServicesOrders");
+                });
+
+            modelBuilder.Entity("SellingMovieTickets.Models.Entities.OtherServicesModel", b =>
                 {
                     b.Navigation("OtherServicesOrders");
                 });
 
+            modelBuilder.Entity("SellingMovieTickets.Models.Entities.PromotionModel", b =>
+                {
+                    b.Navigation("Orders");
+                });
+
             modelBuilder.Entity("SellingMovieTickets.Models.Entities.RoomModel", b =>
                 {
-                    b.Navigation("Seats");
+                    b.Navigation("ShowTimes");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SellingMovieTickets.Models.Entities
 {
@@ -7,10 +8,11 @@ namespace SellingMovieTickets.Models.Entities
         [Key]
         public int Id { get; set; }
 
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public AppUserModel AppUser { get; set; }
 
         public int TotalTicketsPurchased { get; set; } // Tổng số vé đã mua
+        [Column(TypeName = "decimal(10, 3)")]
         public decimal TotalSpent { get; set; } // Tổng số tiền đã chi tiêu
         public int CurrentPointsBalance { get; set; } // Điểm khách hàng hiện tại
 

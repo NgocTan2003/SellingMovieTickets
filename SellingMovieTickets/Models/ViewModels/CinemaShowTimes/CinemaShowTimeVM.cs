@@ -12,6 +12,7 @@ namespace SellingMovieTickets.Models.ViewModels.CinemaShowTimes
         public DateTime EndShowTime { get; set; }
         public RoomViewModel RoomVM { get; set; }
         public MovieViewModel MovieVM { get; set; }
+        public List<string> SelectedSeats { get; set; }
 
         public string? CreateBy { get; set; }
         public DateTime CreateDate { get; set; }

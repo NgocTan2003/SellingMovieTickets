@@ -53,7 +53,7 @@
                             <div class="form-group">
                                 <label for="StartDate">Chọn thời gian chiếu</label>
                                 <div class="d-flex">
-                                    <input type="text" id="selectedDateDisplay" class="form-control" placeholder="Ngày giờ đã chọn" readonly style="margin-left: 10px;" />
+                                    <input asp-for="StartShowTime" type="text" id="selectedDateDisplay" class="form-control" placeholder="Ngày giờ đã chọn" readonly style="margin-left: 10px;" />
                                     <input asp-for="StartShowTime" type="datetime-local" id="datePicker" class="form-control" style="display: inline-block; width: 48px;" />
                                 </div>
                                 <span asp-validation-for="StartShowTime" class="text-danger"></span>

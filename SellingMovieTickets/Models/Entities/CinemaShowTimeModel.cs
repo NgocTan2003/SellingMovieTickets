@@ -7,12 +7,14 @@ namespace SellingMovieTickets.Models.Entities
     {
         [Key]
         public int Id { get; set; }
+
         [Required(ErrorMessage = "Yêu cầu chọn thời gian chiếu phim")]
         public DateTime StartShowTime { get; set; }
         public DateTime EndShowTime { get; set; }
+
         [Required(ErrorMessage = "Yêu cầu chọn phòng chiếu")]
-        public int RoomId { get; set; } 
-        public RoomModel Room { get; set; }  
+        public int RoomId { get; set; }
+        public RoomModel Room { get; set; }
 
         public int MovieId { get; set; }
         public MovieModel Movie { get; set; }
@@ -22,6 +24,7 @@ namespace SellingMovieTickets.Models.Entities
         public string? ModifiedBy { get; set; }
         public DateTime ModifiedDate { get; set; }
 
-        public ICollection<TicketModel> Tickets { get; set; }
+        public ICollection<SeatModel> Seats { get; set; }   
     }
+
 }

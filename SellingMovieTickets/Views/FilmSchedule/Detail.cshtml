@@ -56,10 +56,22 @@
                     {
                         var rowLetter = (char)('A' + row);
                         string seatClass = row < 3 ? "seat-regular" : "seat-vip";
+                        var seatName = $"{rowLetter}{col}";
+                        var isSelected = Model.SelectedSeats != null && Model.SelectedSeats.Contains(seatName);
+
                         <div>
-                            <button class="seat btn btn-sm mx-1 mb-2 text-white @seatClass"
-                                    data-seat="@($"{rowLetter}{col}")">
-                                @($"{rowLetter}{col}")
+                            <button class="seat btn btn-sm mx-1 mb-2 text-white @seatClass @(isSelected ? "seat-booked" : "")"
+                                    data-seat="@seatName" @(isSelected ? "disabled" : "")>
+                                @if (isSelected)
+                                {
+                                    <div class="d-flex justify-content-between align-items-center" style="height: 100%;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300 md:text-gray-500 h-2 w-2 md:h-6 md:w-6"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                                    </div>
+                                }
+                                else
+                                {
+                                    @seatName
+                                }
                             </button>
                         </div>
                     }
@@ -134,12 +146,12 @@
                 const dayOfWeek = date.toLocaleDateString('vi-VN', { weekday: 'long' });
 
                 const calendarItem = `
-                                                                                                                                                                                                                                                    <div class="calendar-item ${i === 0 ? 'active' : ''}">
-                                                                                                                                                                                                                                                        <span>Th. ${month}</span>
-                                                                                                                                                                                                                                                        <span class="day-number">${day}</span>
-                                                                                                                                                                                                                                                        <span class="day-name">${dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1)}</span>
-                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                `;
+                                                                                                                                                                                                                                                                            <div class="calendar-item ${i === 0 ? 'active' : ''}">
+                                                                                                                                                                                                                                                                                <span>Th. ${month}</span>
+                                                                                                                                                                                                                                                                                <span class="day-number">${day}</span>
+                                                                                                                                                                                                                                                                                <span class="day-name">${dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1)}</span>
+                                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                                        `;
                 $('.dateButtons').append(calendarItem);
             }
         }

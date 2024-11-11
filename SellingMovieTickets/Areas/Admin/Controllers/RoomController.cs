@@ -111,7 +111,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                 _context.Rooms.Add(roomModel);
                 await _context.SaveChangesAsync();
 
-                TempData["Success"] = "Thêm phòng chiếu thành công";
+                TempData["Success"] = "Thêm phòng chiếu và ghế thành công";
                 return RedirectToAction("Index");
             }
             else
@@ -182,6 +182,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
 
                 _context.Update(existingRoom);
                 await _context.SaveChangesAsync();
+
                 TempData["Success"] = "Cập nhật Phòng chiếu thành công";
                 return RedirectToAction("Index");
             }

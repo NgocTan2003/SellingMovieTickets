@@ -128,14 +128,6 @@
     border-radius: 5px;
 }
 
-.seat-container .seat {
-    width: 40px;
-    height: 40px;
-    border-radius: 5px;
-    border: 1px solid #333;
-}
-
-
 .seat-type {
     display: flex;
     align-items: center;
@@ -155,9 +147,20 @@
     cursor: pointer;
 }
 
+.seat-container .seat {
+    width: 40px;
+    height: 40px;
+    border-radius: 5px;
+    border: 1px solid #333;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 /* Màu xám cho ghế đã đặt */
 .seat-booked {
-    background-color: #3a3b3c;
+    background-color: #3a3b3c !important;
 }
 /* Màu xanh cho ghế bạn chọn */
 .seat-selected {
@@ -207,6 +210,6 @@
 
     .btn-pay:hover {
         transform: scale(1.05);
-        transition:  0.3s ease-in-out;
+        transition: 0.3s ease-in-out;
         color: white;
     }

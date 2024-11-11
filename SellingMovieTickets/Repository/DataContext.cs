@@ -34,6 +34,7 @@ namespace SellingMovieTickets.Repository
         public DbSet<OrderDetailModel> OrderDetails { get; set; }
         public DbSet<CustomerManagementModel> CustomerManagements { get; set; }
         public DbSet<CustomerPointsModel> CustomerPoints { get; set; }
+        public DbSet<CustomerPointsHistoryModel> CustomerPointsHistories { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -53,12 +54,19 @@ namespace SellingMovieTickets.Repository
                 .WithMany(c => c.MovieCategoryMappings)
                 .HasForeignKey(mc => mc.MovieCategoryId);
 
-            // Cấu hình mối quan hệ giữa SeatModel và RoomModel với hành vi xóa Cascade
+            // Giữ cascade delete giữa CinemaShowTime và SeatModel
             modelBuilder.Entity<SeatModel>()
-                .HasOne(s => s.Room)               // Mối quan hệ một-nhiều
-                .WithMany(r => r.Seats)            // Một Room có nhiều Seats
-                .HasForeignKey(s => s.RoomId)      // Khóa ngoại RoomId
-                .OnDelete(DeleteBehavior.Cascade); // Hành vi xóa: Cascade
+                .HasOne(s => s.CinemaShowTime)
+                .WithMany(st => st.Seats)
+                .HasForeignKey(s => s.CinemaShowTimeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Đổi thành DeleteBehavior.Restrict cho khóa ngoại từ CinemaShowTimeModel đến RoomModel
+            modelBuilder.Entity<CinemaShowTimeModel>()
+                .HasOne(c => c.Room)
+                .WithMany(r => r.ShowTimes)
+                .HasForeignKey(c => c.RoomId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             base.OnModelCreating(modelBuilder);
         }

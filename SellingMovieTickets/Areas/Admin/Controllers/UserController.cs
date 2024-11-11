@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using SellingMovieTickets.Models.Entities;
 using SellingMovieTickets.Models.Enum;
 using SellingMovieTickets.Models.ViewModels.Users;
+using SellingMovieTickets.Repository;
 using System.Security.Claims;
 
 namespace SellingMovieTickets.Areas.Admin.Controllers
@@ -15,12 +16,14 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
     {
         private UserManager<AppUserModel> _userManager;
         private SignInManager<AppUserModel> _signInManager;
+        private readonly DataContext _dataContext;
 
 
-        public UserController(UserManager<AppUserModel> userManager, SignInManager<AppUserModel> signInManager)
+        public UserController(UserManager<AppUserModel> userManager, SignInManager<AppUserModel> signInManager, DataContext dataContext)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _dataContext = dataContext;
         }
 
         [HttpGet]

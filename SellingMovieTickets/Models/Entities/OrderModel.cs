@@ -19,7 +19,7 @@ namespace SellingMovieTickets.Models.Entities
         public int TicketId { get; set; }
         public TicketModel Ticket { get; set; }
 
-        public int? CinemaShowTimeId { get; set; }
+        public int CinemaShowTimeId { get; set; }
         public CinemaShowTimeModel CinemaShowTime { get; set; }
 
         public int CustomerManagementId { get; set; }
@@ -28,14 +28,12 @@ namespace SellingMovieTickets.Models.Entities
         public int? PromotionId { get; set; }
         public PromotionModel? Promotion { get; set; }
 
-        public int? OtherServicesOrderId { get; set; }
-        public OtherServicesOrderModel? OtherServicesOrder { get; set; }
-
         public string? CreateBy { get; set; }
         public DateTime CreateDate { get; set; }
         public string? ModifiedBy { get; set; }
         public DateTime ModifiedDate { get; set; }
 
         public ICollection<OrderDetailModel> OrderDetails { get; set; }
+        public ICollection<OtherServicesOrderModel> OtherServicesOrders { get; set; }
     }
 }

@@ -15,8 +15,8 @@ namespace SellingMovieTickets.Models.Entities
         public int MovieId { get; set; }
         public MovieModel Movie { get; set; }
 
-        public int UserId { get; set; }
-        public AppUserModel User { get; set; }
+        public string AppUserId { get; set; }
+        public AppUserModel AppUser { get; set; }
 
         public string? CreateBy { get; set; }
         public DateTime CreateDate { get; set; }

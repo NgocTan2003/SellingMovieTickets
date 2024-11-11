@@ -130,6 +130,29 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                     _context.CinemaShowTimes.Add(showTime);
                     await _context.SaveChangesAsync();
 
+                    var room = await _context.Rooms.FindAsync(cinemaShowTime.SelectedNumberRoomId);
+                    if (room != null)
+                    {
+                        var seats = new List<SeatModel>();
+                        for (int row = 0; row < room.RowNumber; row++)
+                        {
+                            char rowLetter = (char)('A' + row);
+                            for (int seatNumber = 1; seatNumber <= room.NumberOfSeats; seatNumber++)
+                            {
+                                var seat = new SeatModel
+                                {
+                                    SeatNumber = $"{rowLetter}{seatNumber}",
+                                    IsAvailable = true,
+                                    CinemaShowTimeId = showTime.Id,
+                                    CreateDate = DateTime.Now
+                                };
+                                seats.Add(seat);
+                            }
+                        }
+                        _context.Seats.AddRange(seats);
+                        await _context.SaveChangesAsync();
+                    }
+                    TempData["Success"] = "Tạo suất chiếu thành công";
                     return RedirectToAction("Index");
                 }
             }
