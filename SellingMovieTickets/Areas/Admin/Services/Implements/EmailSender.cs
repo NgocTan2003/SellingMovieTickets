@@ -12,12 +12,12 @@ namespace SellingMovieTickets.Areas.Admin.Services.Implements
             {
                 EnableSsl = true, // Bật bảo mật SSL
                 UseDefaultCredentials = false,
-                Credentials = new NetworkCredential("chodumaivesau@gmail.com", "gtesnehrxngrwslh")
+                Credentials = new NetworkCredential("umicinema@gmail.com", "wekzscciywhacxim")
             };
 
             var mailMessage = new MailMessage
             {
-                From = new MailAddress("chodumaivesau@gmail.com"),
+                From = new MailAddress("umicinema@gmail.com"),
                 Subject = subject,
                 Body = message,
                 IsBodyHtml = true  

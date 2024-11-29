@@ -13,7 +13,6 @@ namespace SellingMovieTickets.Models.Entities
         public DateTime StartShowTime { get; set; }
         public DateTime PaymentTime { get; set; }
 
-
         [Column(TypeName = "decimal(10, 3)")]
         public decimal ConcessionAmount { get; set; } // Số tiền phụ phí bỏng nước
         [Column(TypeName = "decimal(10, 3)")]
@@ -25,6 +24,8 @@ namespace SellingMovieTickets.Models.Entities
 
         public string SeatNames { get; set; }
         public string RoomNumber { get; set; }
+
+        public OrderModel Order { get; set; }
 
         public string? CreateBy { get; set; }
         public DateTime CreateDate { get; set; }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -18,11 +19,12 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
     {
         private readonly DataContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
-
-        public OtherServicesController(DataContext context, IWebHostEnvironment webHostEnvironment)
+        private readonly IMapper _mapper;
+        public OtherServicesController(DataContext context, IWebHostEnvironment webHostEnvironment, IMapper mapper)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+            _mapper = mapper;
         }
 
         public async Task<IActionResult> Index(string searchText, int pg)
@@ -47,23 +49,11 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
             var pager = new Paginate(recsCount, pg, pageSize);
             int resSkip = (pg - 1) * pageSize;
             var data = otherServices.Skip(resSkip).Take(pager.PageSize).ToList();
-            var concessionViewModels = data.Select(x => new OtherServicesViewModel
-            {
-                Id = x.Id,
-                Name = x.Name,
-                Price = x.Price,
-                Description = x.Description,
-                Image = x.Image,
-                Status = x.Status,
-                CreateBy = x.CreateBy,
-                CreateDate = x.CreateDate,
-                ModifiedBy = x.ModifiedBy,
-                ModifiedDate = x.ModifiedDate
-            }).ToList();
+            var otherServicesVM = _mapper.Map<List<OtherServicesViewModel>>(data);
 
             ViewBag.Pager = pager;
             ViewBag.SearchText = searchText;
-            return View(concessionViewModels);
+            return View(otherServicesVM);
         }
 
         [HttpGet]

@@ -19,8 +19,6 @@ namespace SellingMovieTickets.Models.Entities
         public int OrderId { get; set; }
         public OrderModel Order { get; set; }  
 
-
-
         public string? CreateBy { get; set; }
         public DateTime CreateDate { get; set; }
         public string? ModifiedBy { get; set; }

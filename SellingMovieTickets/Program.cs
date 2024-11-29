@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
+using SellingMovieTickets.Areas.Admin.Repository;
 using SellingMovieTickets.Areas.Admin.Services.Implements;
 using SellingMovieTickets.Areas.Admin.Services.Interfaces;
 using SellingMovieTickets.Models.Entities;
@@ -25,6 +28,11 @@ builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
+
+// AutoMapper
+builder.Services.AddAutoMapper(typeof(MappingProfiles));
+
+
 // add email sender
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 
@@ -32,10 +40,18 @@ builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 
 builder.Services.AddDistributedMemoryCache();
 
+// cấu hình session trên server
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.IdleTimeout = TimeSpan.FromMinutes(60);
     options.Cookie.IsEssential = true;
+});
+
+// cấu hình cookie phía client
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(60); // Thời gian tồn tại của cookie mặc định
+    options.SlidingExpiration = true; // Gia hạn thêm thời gian của cookie nếu người dùng hoạt động trong phiên
 });
 
 builder.Services.Configure<IdentityOptions>(options =>

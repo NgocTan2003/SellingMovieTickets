@@ -37,7 +37,7 @@
 
 @* Movie CommingSoon *@
 <div class="row movieNowShowing">
-    <div class="col-md-9">
+    <div class="col-md-9">  
         <div class="d-flex justify-content-between align-items-center">
             <div class="section-title d-flex align-items-center">
                 <div class="rounded-full bg-red-500 w-4 h-4 mr-1"></div>Phim sắp chiếu
@@ -50,21 +50,14 @@
     </div>
 </div>
 
-
  @section Scripts {
     <script type="text/javascript">
-        toastr.options = {
-            "closeButton": true, // Nút đóng
-            "progressBar": true, // Hiển thị thanh tiến trình
-            "positionClass": "toast-top-right", // Vị trí hiển thị
-            "timeOut": "1000" // Thời gian hiển thị (ms)
-        };
-
         $(document).ready(function () {
             $.ajax({
                 url: '@Url.Action("MenuSlider", "Menu")',
                 type: 'GET',
                 success: function (data) {
+                    console.log(data)
                     $('.Slider').prepend(data);
                 },
                 error: function () {

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SellingMovieTickets.Areas.Admin.Models.Accounts;
@@ -6,6 +7,7 @@ using SellingMovieTickets.Areas.Admin.Models.ViewModels;
 using SellingMovieTickets.Areas.Admin.Models.ViewModels.MovieCategory;
 using SellingMovieTickets.Models.Entities;
 using SellingMovieTickets.Models.Enum;
+using SellingMovieTickets.Models.ViewModels.CinemaShowTimes;
 using SellingMovieTickets.Repository;
 using System.Globalization;
 using System.Security.Claims;
@@ -18,10 +20,11 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
     public class MovieCategoryController : Controller
     {
         private readonly DataContext _context;
-
-        public MovieCategoryController(DataContext context)
+        private readonly IMapper _mapper;
+        public MovieCategoryController(DataContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<IActionResult> Index(string searchText, int pg)
@@ -44,20 +47,12 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
 
             var pager = new Paginate(recsCount, pg, pageSize);
             int resSkip = (pg - 1) * pageSize;
-            var data = categorieMovies.Skip(resSkip).Take(pager.PageSize)
-                .Select(x => new MovieCategoryViewModel
-                {
-                    Id = x.Id,
-                    CategoryName = x.CategoryName,
-                    CreateBy = x.CreateBy,
-                    CreateDate = x.CreateDate,
-                    ModifiedBy = x.ModifiedBy,
-                    ModifiedDate = x.ModifiedDate
-                }).ToList();
+            var data = categorieMovies.Skip(resSkip).Take(pager.PageSize).ToList();
+            var movieCategoriesVM = _mapper.Map<List<MovieCategoryViewModel>>(data);
 
             ViewBag.Pager = pager;
             ViewBag.SearchText = searchText;
-            return View(data);
+            return View(movieCategoriesVM);
         }
 
         [HttpGet]

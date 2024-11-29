@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -17,15 +18,16 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
     public class RoomController : Controller
     {
         private readonly DataContext _context;
-
-        public RoomController(DataContext context)
+        private readonly IMapper _mapper;
+        public RoomController(DataContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<IActionResult> Index(string searchText, int pg)
         {
-            IEnumerable<RoomModel> news = await _context.Rooms.OrderByDescending(x => x.Id).ToListAsync();
+            IEnumerable<RoomModel> rooms = await _context.Rooms.OrderByDescending(x => x.Id).ToListAsync();
             const int pageSize = 10;
             if (pg < 1)
             {
@@ -34,32 +36,35 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
 
             if (!string.IsNullOrEmpty(searchText))
             {
-                news = news.Where(x =>
+                rooms = rooms.Where(x =>
                     (x.RoomNumber.Contains(searchText)));
             }
 
-            int recsCount = news.Count();
+            int recsCount = rooms.Count();
             var pager = new Paginate(recsCount, pg, pageSize);
             int resSkip = (pg - 1) * pageSize;
-            var data = news.Skip(resSkip).Take(pager.PageSize).ToList();
-
-            var roomViewModel = data.Select(x => new RoomViewModel
-            {
-                Id = x.Id,
-                RoomNumber = x.RoomNumber,
-                RowNumber = x.RowNumber,
-                NumberOfSeats = x.NumberOfSeats,
-                StatusRoom = x.StatusRoom,
-                TotalSeats = x.TotalSeats,
-                CreateBy = x.CreateBy,
-                CreateDate = x.CreateDate,
-                ModifiedBy = x.ModifiedBy,
-                ModifiedDate = x.ModifiedDate
-            }).ToList();
+            var data = rooms.Skip(resSkip).Take(pager.PageSize).ToList();
+            var roomVM = _mapper.Map<List<RoomViewModel>>(data);
 
             ViewBag.Pager = pager;
             ViewBag.SearchText = searchText;
-            return View(roomViewModel);
+            return View(roomVM);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Detail(int id)
+        {
+            var room = await _context.Rooms.Where(x => x.Id == id).FirstOrDefaultAsync();
+            var roomVM = new RoomViewModel
+            {
+                Id = room.Id,
+                RoomNumber = room.RoomNumber,
+                RowNumber = room.RowNumber,
+                NumberOfSeats = room.NumberOfSeats,
+                StatusRoom = room.StatusRoom
+            };
+
+            return View(roomVM);
         }
 
         [HttpGet]
@@ -196,11 +201,20 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
 
         public async Task<IActionResult> Delete(int Id)
         {
-            RoomModel room = await _context.Rooms.FindAsync(Id);
-            _context.Rooms.Remove(room);
-            await _context.SaveChangesAsync();
-            TempData["Success"] = "Xóa phòng chiếu thành công";
-            return RedirectToAction("Index");
+            CinemaShowTimeModel cinemaShowTime = await _context.CinemaShowTimes.Where(x => x.RoomId == Id).FirstOrDefaultAsync();
+            if (cinemaShowTime == null)
+            {
+                RoomModel room = await _context.Rooms.FindAsync(Id);
+                _context.Rooms.Remove(room);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Xóa phòng chiếu thành công";
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                TempData["Error"] = "Phòng chiếu đang được chọn cho một suất chiếu.";
+                return RedirectToAction("Index");
+            }
         }
 
         [HttpPost]

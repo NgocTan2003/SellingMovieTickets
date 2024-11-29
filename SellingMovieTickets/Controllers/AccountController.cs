@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -58,22 +59,28 @@ namespace SellingMovieTickets.Controllers
                     var avatar = findUserName.Avatar ?? "avatar_default.jpg";
                     var roles = await _userManager.GetRolesAsync(findUserName);
                     var role = roles.FirstOrDefault() ?? "Unknown";
+                    var email = await _userManager.GetEmailAsync(findUserName);
 
                     var claims = new List<Claim>
                                 {
                                     new Claim(ClaimUserLogin.Id, findUserName.Id),
                                     new Claim(ClaimUserLogin.Avatar, avatar),
                                     new Claim(ClaimUserLogin.UserName, findUserName.FullName ?? findUserName.UserName),
+                                    new Claim(ClaimUserLogin.Email, email),
                                     new Claim(ClaimUserLogin.Role, role)
                                 };
 
-                    // Tạo claims identity và đăng nhập
+                    // Tạo claims identity 
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    await _signInManager.SignInWithClaimsAsync(findUserName, false, claims);
+                    var authProperties = new AuthenticationProperties
+                    {
+                        IsPersistent = true, // Cookie tồn tại sau khi đóng trình duyệt
+                        ExpiresUtc = DateTimeOffset.UtcNow.AddHours(1)
+                    };
+                    await _signInManager.SignInWithClaimsAsync(findUserName, authProperties, claims);
 
-                    var user = await _userManager.FindByNameAsync(loginVM.Username);
                     TempData["Success"] = "Đăng nhập thành công";
-                    var receiver = user.Email;
+                    var receiver = findUserName.Email;
                     var subject = "Đăng nhập trên thiết bị thành công";
                     var message = "Đăng nhập thành công, trải nghiệm dịch vụ nhé";
                     await _emailSender.SendEmailAsync(receiver, subject, message);
@@ -159,8 +166,11 @@ namespace SellingMovieTickets.Controllers
 
         public async Task<IActionResult> Logout(string returnUrl = "/")
         {
-            await _signInManager.SignOutAsync();
-            return Redirect(returnUrl);
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Login", "Account");
+
+            //await _signInManager.SignOutAsync();
+            //return Redirect(returnUrl);
         }
 
         public async Task<IActionResult> ForgotPassword()
@@ -198,6 +208,39 @@ namespace SellingMovieTickets.Controllers
             return RedirectToAction("ForgotPassword", "Account");
         }
 
+        [HttpPost]
+        public async Task<IActionResult> SendEmailChangePass()
+        {
+            var userEmail = User.FindFirstValue(ClaimUserLogin.Email);
+            var checkMail = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+            if (checkMail == null)
+            {
+                TempData["Error"] = "Không tìm thấy Email";
+                return RedirectToAction("Index", "CustomerManagement");
+            }
+            else
+            {
+                string token = Guid.NewGuid().ToString();
+                checkMail.Token = token;
+                _dataContext.Update(checkMail);
+                await _dataContext.SaveChangesAsync();
+                var receiver = checkMail.Email;
+                var subject = "Đổi mật khẩu tài khoản";
+                var message = $@"
+                            <div>Chúng tôi đã nhận được yêu cầu đặt lại mật khẩu UMI Cinema của bạn.</div>
+                            <a href='{Request.Scheme}://{Request.Host}/Account/ResetPassword?Email={checkMail.Email}&token={token}' 
+                               style='display: inline-block; padding: 10px 20px; font-size: 16px; color: #fff; background-color: #007bff; text-decoration: none; border-radius: 5px;'>
+                               Đổi mật khẩu
+                            </a>";
+
+
+                await _emailSender.SendEmailAsync(receiver, subject, message);
+            }
+
+            TempData["Success"] = "Vui lòng kiểm tra Email bạn đã đăng ký tài khoản";
+            return RedirectToAction("Index", "CustomerManagement");
+        }
+
         public async Task<IActionResult> ResetPassword(AppUserModel user, string token)
         {
             var checkUser = await _userManager.Users.Where(u => u.Email == user.Email)
@@ -228,7 +271,7 @@ namespace SellingMovieTickets.Controllers
                 checkUser.PasswordHash = passwordHash;
                 checkUser.Token = newToken;
                 await _userManager.UpdateAsync(checkUser);
-                TempData["Success"] = "Mật khẩu câpj nhật thành công";
+                TempData["Success"] = "Mật khẩu cập nhật thành công";
                 return RedirectToAction("Login", "Account");
             }
             else

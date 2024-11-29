@@ -9,3 +9,8 @@
     object-fit: cover;
     margin-top: 4px;
 }
+
+.style_imageAdDetail {
+    height: 200px;
+    width: 100%;
+}

@@ -106,6 +106,7 @@
                                 </td>
                                 <td>@item.CreateDate</td>
                                 <td>
+                                    <a asp-action="Detail" asp-controller="Movie" asp-route-Id="@item.Id" class="btn btn-primary btn-sm">Detail</a>
                                     <a asp-action="Edit" asp-controller="Movie" asp-route-Id="@item.Id" class="btn btn-primary btn-sm">Edit</a>
                                     <a asp-action="Delete" asp-controller="Movie" asp-route-Id="@item.Id" class="btn btn-danger btn-sm confirmDeletion">Delete</a>
                                 </td>
@@ -147,6 +148,8 @@
                     $(this).attr('selected', '');
                 }
             });
+
+            console.log("c")
 
             if (str.length > 0) {
                 Swal.fire({
@@ -192,7 +195,7 @@
                     }
                 });
             }
-        })
+        });
 
         $('body').on('change', '#SelectAll', function () {
             var checkStatus = this.checked;
@@ -201,8 +204,10 @@
                 this.checked = checkStatus;
                 if (this.checked) {
                     checkbox.attr('selected', 'checked');
+                    console.log("a")
                 } else {
                     checkbox.attr('selected', '');
+                    console.log("b")
                 }
             })
         });
@@ -237,7 +242,5 @@
                 }
             });
         });
-
-    });
+    }
 </script>
-

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SellingMovieTickets.Areas.Admin.Models.ViewModels;
@@ -16,11 +17,12 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
     {
         private readonly DataContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
-
-        public AdvController(DataContext context, IWebHostEnvironment webHostEnvironment)
+        private readonly IMapper _mapper;
+        public AdvController(DataContext context, IWebHostEnvironment webHostEnvironment, IMapper mapper)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+            _mapper = mapper;
         }
 
         public async Task<IActionResult> Index(string searchText, int pg)
@@ -46,23 +48,11 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
             var pager = new Paginate(recsCount, pg, pageSize);
             int resSkip = (pg - 1) * pageSize;
             var data = advs.Skip(resSkip).Take(pager.PageSize).ToList();
-            var advViewModels = data.Select(x => new AdvViewModel
-            {
-                Id = x.Id,
-                Title = x.Title,
-                Description = x.Description,
-                Image = x.Image,
-                Link = x.Link,
-                Status = x.Status,
-                CreateBy = x.CreateBy,
-                CreateDate = x.CreateDate,
-                ModifiedBy = x.ModifiedBy,
-                ModifiedDate = x.ModifiedDate
-            }).ToList();
+            var advVM = _mapper.Map<List<AdvViewModel>>(data);
 
             ViewBag.Pager = pager;
             ViewBag.SearchText = searchText;
-            return View(advViewModels);
+            return View(advVM);
         }
 
         [HttpGet]

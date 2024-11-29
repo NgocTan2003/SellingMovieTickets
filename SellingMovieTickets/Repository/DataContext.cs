@@ -20,7 +20,6 @@ namespace SellingMovieTickets.Repository
         public DbSet<SeatModel> Seats { get; set; }
         public DbSet<AppUserModel> Users { get; set; }
         public DbSet<TicketModel> Tickets { get; set; }
-        public DbSet<PaymentModel> Payments { get; set; }
         public DbSet<PromotionModel> Promotions { get; set; }
         public DbSet<OtherServicesModel> OtherServices { get; set; }
         public DbSet<OtherServicesOrderModel> OtherServicesOrders { get; set; }
@@ -54,7 +53,7 @@ namespace SellingMovieTickets.Repository
                 .WithMany(c => c.MovieCategoryMappings)
                 .HasForeignKey(mc => mc.MovieCategoryId);
 
-            // Giữ cascade delete giữa CinemaShowTime và SeatModel
+            // Giữ cascade delete giữa CinemaShowTime và List<SeatModel>
             modelBuilder.Entity<SeatModel>()
                 .HasOne(s => s.CinemaShowTime)
                 .WithMany(st => st.Seats)
@@ -68,8 +67,35 @@ namespace SellingMovieTickets.Repository
                 .HasForeignKey(c => c.RoomId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Cấu hình quan hệ OrderModel -> OrderDetailModel
+            modelBuilder.Entity<OrderDetailModel>()
+                .HasOne(od => od.Order)
+                .WithMany(o => o.OrderDetails)
+                .HasForeignKey(od => od.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Cấu hình quan hệ OrderModel -> OtherServicesOrderModel
+            modelBuilder.Entity<OtherServicesOrderModel>()
+                .HasOne(os => os.Order)
+                .WithMany(o => o.OtherServicesOrders)
+                .HasForeignKey(os => os.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Cấu hình quan hệ OrderModel -> TicketModel
+            modelBuilder.Entity<OrderModel>()
+                .HasOne(o => o.Ticket)
+                .WithOne(t => t.Order)
+                .HasForeignKey<OrderModel>(o => o.TicketId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Thiết lập mối quan hệ 1-1: Order và CustomerPointHistory
+            modelBuilder.Entity<OrderModel>()
+                .HasOne(o => o.CustomerPointsHistory)
+                .WithOne(c => c.Order)
+                .HasForeignKey<CustomerPointsHistoryModel>(c => c.OrderId)
+                .OnDelete(DeleteBehavior.Restrict);  
+
             base.OnModelCreating(modelBuilder);
         }
-
     }
 }

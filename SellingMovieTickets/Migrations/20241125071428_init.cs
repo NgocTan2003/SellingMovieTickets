@@ -49,7 +49,10 @@ namespace SellingMovieTickets.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Gender = table.Column<int>(type: "int", nullable: false),
                     Avatar = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Token = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -482,32 +485,6 @@ namespace SellingMovieTickets.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Payments",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    PaymentType = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TicketId = table.Column<int>(type: "int", nullable: false),
-                    CreateBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Payments", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Payments_Tickets_TicketId",
-                        column: x => x.TicketId,
-                        principalTable: "Tickets",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "CustomerPoints",
                 columns: table => new
                 {
@@ -533,41 +510,17 @@ namespace SellingMovieTickets.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CustomerPointsHistories",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CustomerId = table.Column<int>(type: "int", nullable: false),
-                    PointsChanged = table.Column<int>(type: "int", nullable: false),
-                    TransactionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    PointChangeStatus = table.Column<int>(type: "int", nullable: false),
-                    CreateBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CustomerPointsHistories", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_CustomerPointsHistories_CustomerManagements_CustomerId",
-                        column: x => x.CustomerId,
-                        principalTable: "CustomerManagements",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Orders",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    OrderCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PaymentType = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     NumberOfTickets = table.Column<int>(type: "int", nullable: false),
                     TotalAmount = table.Column<decimal>(type: "decimal(10,3)", nullable: false),
+                    TicketCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StatusOrder = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TicketId = table.Column<int>(type: "int", nullable: false),
                     CinemaShowTimeId = table.Column<int>(type: "int", nullable: false),
                     CustomerManagementId = table.Column<int>(type: "int", nullable: false),
@@ -631,14 +584,48 @@ namespace SellingMovieTickets.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CustomerPointsHistories",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CustomerId = table.Column<int>(type: "int", nullable: false),
+                    OrderId = table.Column<int>(type: "int", nullable: false),
+                    PointsChanged = table.Column<int>(type: "int", nullable: false),
+                    TransactionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    PointChangeStatus = table.Column<int>(type: "int", nullable: false),
+                    CreateBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CustomerPointsHistories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CustomerPointsHistories_CustomerManagements_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "CustomerManagements",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CustomerPointsHistories_Orders_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Orders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "OrderDetails",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     OrderId = table.Column<int>(type: "int", nullable: false),
+                    OrderCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SeatNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(10,3)", nullable: false),
                     CreateBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -752,6 +739,12 @@ namespace SellingMovieTickets.Migrations
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CustomerPointsHistories_OrderId",
+                table: "CustomerPointsHistories",
+                column: "OrderId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_MovieCategoryMappings_MovieCategoryId",
                 table: "MovieCategoryMappings",
                 column: "MovieCategoryId");
@@ -779,7 +772,8 @@ namespace SellingMovieTickets.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_TicketId",
                 table: "Orders",
-                column: "TicketId");
+                column: "TicketId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_OtherServicesOrders_OrderId",
@@ -790,11 +784,6 @@ namespace SellingMovieTickets.Migrations
                 name: "IX_OtherServicesOrders_OtherServicesId",
                 table: "OtherServicesOrders",
                 column: "OtherServicesId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Payments_TicketId",
-                table: "Payments",
-                column: "TicketId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Reviews_AppUserId",
@@ -852,9 +841,6 @@ namespace SellingMovieTickets.Migrations
 
             migrationBuilder.DropTable(
                 name: "OtherServicesOrders");
-
-            migrationBuilder.DropTable(
-                name: "Payments");
 
             migrationBuilder.DropTable(
                 name: "Reviews");

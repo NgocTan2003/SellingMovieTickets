@@ -12,13 +12,18 @@ namespace SellingMovieTickets.Models.Entities
         public int CustomerId { get; set; }
         public CustomerManagementModel Customer { get; set; }
 
-        public int PointsChanged { get; set; } // Điểm tăng thêm hoặc giảm đi
-        public DateTime TransactionDate { get; set; } // Ngày giao dịch
-        public PointChangeStatus PointChangeStatus { get; set; } // Mô tả giao dịch ("Mua vé", "Sử dụng điểm thưởng")
+        [Required]
+        public int? OrderId { get; set; }  
+        public OrderModel Order { get; set; }  
+
+        public int PointsChanged { get; set; }
+        public DateTime TransactionDate { get; set; }
+        public PointChangeStatus PointChangeStatus { get; set; }
 
         public string? CreateBy { get; set; }
         public DateTime CreateDate { get; set; }
         public string? ModifiedBy { get; set; }
         public DateTime ModifiedDate { get; set; }
+
     }
 }

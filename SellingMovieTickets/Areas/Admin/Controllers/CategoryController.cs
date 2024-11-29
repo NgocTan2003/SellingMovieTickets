@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -20,10 +21,12 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
     public class CategoryController : Controller
     {
         private readonly DataContext _context;
+        private readonly IMapper _mapper;
 
-        public CategoryController(DataContext context)
+        public CategoryController(DataContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<IActionResult> Index(string searchText, int pg)
@@ -47,23 +50,12 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
             int recsCount = categories.Count();
             var pager = new Paginate(recsCount, pg, pageSize);
             int resSkip = (pg - 1) * pageSize;
-            var data = categories.Skip(resSkip).Take(pager.PageSize).Select(x => new CategoryViewModel
-            {
-                Id = x.Id,
-                Name = x.Name,
-                Description = x.Description,
-                Slug = x.Slug,
-                SeoKeywords = x.SeoKeywords,
-                Status = x.Status,
-                CreateBy = x.CreateBy,
-                CreateDate = x.CreateDate,
-                ModifiedBy = x.ModifiedBy,
-                ModifiedDate = x.ModifiedDate
-            }).ToList();
+            var data = categories.Skip(resSkip).Take(pager.PageSize).ToList();
+            var categoriesVM = _mapper.Map<List<CategoryViewModel>>(data);
 
             ViewBag.Pager = pager;
             ViewBag.SearchText = searchText;
-            return View(data);
+            return View(categoriesVM);
         }
     
         [HttpGet]

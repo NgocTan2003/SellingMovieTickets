@@ -3,7 +3,8 @@
 
 <div class="container my-5">
     <div class="row">
-        <!-- Movie Information -->
+        <div id="loading">
+        </div>
         <div class="col-md-8">
             <div class="card seat-info">
                 <h5 class="text-white fz-16">Thông tin phim</h5>
@@ -51,15 +52,15 @@
             <div class="card payment-method fz-16">
                 <h5 class="text-white">Phương thức thanh toán</h5>
                 <div>
-                    <input class="payment" type="radio" id="vietqr" name="payment" value="vietqr" checked>
-                    <label for="vietqr"><img src="~/media/image/vietqr.jpg" alt="VietQR" class="imgPaymentMethod">VietQR</label>
-                </div>
-                <div>
-                    <input class="payment" type="radio" id="vnpay" name="payment" value="vnpay">
+                    <input class="payment" type="radio" id="vnpay" name="payment" value="VnPay" checked>
                     <label for="vnpay"><img src="~/media/image/vnpay.png" alt="VnPay" class="imgPaymentMethod">VnPay</label>
                 </div>
                 <div>
-                    <input class="payment" type="radio" id="momo" name="payment" value="momo">
+                    <input class="payment" type="radio" id="vietqr" name="payment" value="vietQr">
+                    <label for="vietqr"><img src="~/media/image/vietqr.jpg" alt="VietQR" class="imgPaymentMethod">VietQR</label>
+                </div>
+                <div>
+                    <input class="payment" type="radio" id="momo" name="payment" value="MoMo">
                     <label for="momo"><img src="~/media/image/momo.png" alt="MoMo" class="imgPaymentMethod">MoMo</label>
                 </div>
             </div>
@@ -94,10 +95,10 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script>
         $(document).ready(function () {
-            let seats = ""; // ds ghế
-            let totalPrice = 0; // tổng tiền vé
+            let seats = ""; 
+            let totalPriceSeats = 0; 
             let totalPriceServices = 0;
-            let otherServices = []; // ds dịch vụ
+            let otherServices = [];  
             let productIdCLick = 0;
             let PaymentInfo = {
                 SeatNames: "",
@@ -134,15 +135,15 @@
                         $(this).addClass('selected-border');
                         updateOtherServices("changeQuantity", parseInt(productIdCLick), 1);
                         const newRow = `
-                                                                <tr class="fz-16 rowItemOtherService" data-id="${productIdCLick}">
-                                                                    <td class="name">${productName}</td>
-                                                                    <td class="text-center">
-                                                                        <button class="btn btn-sm btn-outline-secondary decrease-qty" data-id="${productIdCLick}">-</button>
-                                                                        <span class="count" data-id="${productIdCLick}">1</span>
-                                                                        <button class="btn btn-sm btn-outline-secondary increase-qty" data-id="${productIdCLick}">+</button>
-                                                                    </td>
-                                                                    <td class="text-right totalPrice" data-id="${productIdCLick}" data-price="${productPrice * 1000}">${(productPrice * 1000).toLocaleString()}đ</td>
-                                                                </tr>`;
+                                                                                                                                <tr class="fz-16 rowItemOtherService" data-id="${productIdCLick}">
+                                                                                                                                    <td class="name">${productName}</td>
+                                                                                                                                    <td class="text-center">
+                                                                                                                                        <button class="btn btn-sm btn-outline-secondary decrease-qty" data-id="${productIdCLick}">-</button>
+                                                                                                                                        <span class="count" data-id="${productIdCLick}">1</span>
+                                                                                                                                        <button class="btn btn-sm btn-outline-secondary increase-qty" data-id="${productIdCLick}">+</button>
+                                                                                                                                    </td>
+                                                                                                                                    <td class="text-right totalPrice" data-id="${productIdCLick}" data-price="${productPrice * 1000}">${(productPrice * 1000).toLocaleString()}đ</td>
+                                                                                                                                </tr>`;
                         $('.tbody').append(newRow);
                     }
                 });
@@ -183,6 +184,7 @@
                 getSeats(movieBooking.items);
                 getOtherService();
 
+                PaymentInfo.PaymentAmount = totalPriceSeats;
                 PaymentInfo.SeatNames = seats;
                 PaymentInfo.ShowTimeId = movieBooking.ShowTimeId;
                 PaymentInfo.OrderSeats = movieBooking.items.map(item => ({
@@ -197,7 +199,7 @@
                 $(".movieRoom").text(movieBooking.roomName);
                 $(".listSeat").text("Ghế " + "(" + seats + ")");
                 $(".totalTicket").text(movieBooking.items.length);
-                $(".totalPriceTicket").text(`${(totalPrice * 1000).toLocaleString()}đ`);
+                $(".totalPriceTicket").text(`${(totalPriceSeats * 1000).toLocaleString()}đ`);
             }
 
             // Chuyển đổi thời gian giờ chiếu
@@ -216,7 +218,7 @@
             function getSeats(listSeat) {
                 let seatNames = [];
                 listSeat.forEach(item => {
-                    totalPrice += item.seatPrice;
+                    totalPriceSeats += item.seatPrice;
                     seatNames.push(item.seatName);
                 });
                 seats = seatNames.join(", ");
@@ -232,17 +234,17 @@
                         $('.containerOtherservices').empty();
                         data.forEach(service => {
                             const serviceHtml = `
-                                                                                                                                            <div class="col-md-3 col-sm-6 mb-4">
-                                                                                                                                                    <div class="product-card" data-id="${service.id}">
-                                                                                                                                                    <input hidden class="productId" value="${service.id}" />
-                                                                                                                                                    <img src="/media/otherServices/${service.image}" alt="${service.Name}">
-                                                                                                                                                    <div class="product-info">
-                                                                                                                                                                <div class="product-name">${service.name}</div>
-                                                                                                                                                        <div class="product-price">Giá: ${(service.price * 1000).toLocaleString()}đ</div>
-                                                                                                                                                    </div>
-                                                                                                                                                </div>
-                                                                                                                                            </div>
-                                                                                                                                        `;
+                                                                                                                                                                                                            <div class="col-md-3 col-sm-6 mb-4">
+                                                                                                                                                                                                                    <div class="product-card" data-id="${service.id}">
+                                                                                                                                                                                                                    <input hidden class="productId" value="${service.id}" />
+                                                                                                                                                                                                                    <img src="/media/otherServices/${service.image}" alt="${service.Name}">
+                                                                                                                                                                                                                    <div class="product-info">
+                                                                                                                                                                                                                                <div class="product-name">${service.name}</div>
+                                                                                                                                                                                                                        <div class="product-price">Giá: ${(service.price * 1000).toLocaleString()}đ</div>
+                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                        `;
                             $('.containerOtherservices').append(serviceHtml);
                         });
                     },
@@ -279,12 +281,14 @@
                     PaymentInfo.ConcessionAmount += service.price * item.Quantity;
                 })
                 $('.totalPriceService').text((PaymentInfo.ConcessionAmount * 1000).toLocaleString() + "đ");
-                $('.totalAmount').text(((PaymentInfo.ConcessionAmount + totalPrice) * 1000).toLocaleString() + "đ");
+                $('.totalAmount').text(((PaymentInfo.ConcessionAmount + totalPriceSeats) * 1000).toLocaleString() + "đ");
                 PaymentInfo.ConcessionAmount = PaymentInfo.ConcessionAmount;
-                PaymentInfo.PaymentAmount = PaymentInfo.ConcessionAmount + totalPrice;
+                PaymentInfo.PaymentAmount = PaymentInfo.ConcessionAmount + totalPriceSeats;
             }
 
             $('#payButton').on('click', function () {
+                $('#loading').html('<div id="loadingOverlay" class="loading-overlay"><div class="spinner"></div></div>').fadeIn();
+
                 const selectedPayment = $('input[name="payment"]:checked').val();
                 PaymentInfo.PaymentType = selectedPayment;
                 console.log(PaymentInfo)
@@ -294,16 +298,24 @@
                     contentType: 'application/json',
                     data: JSON.stringify(PaymentInfo),
                     success: function (response) {
-                        window.location.href = '@Url.Action("Success", "Payment")';
+                        $('#loading').fadeOut(function () {
+                            $(this).empty();
+                        });
+                        if (response.redirectUrl) {
+                            window.location.href = response.redirectUrl;
+                        } else {
+                            $('#loading').fadeOut();
+                            alert('Thanh toán thất bại.');
+                        }
                     },
                     error: function (xhr, status, error) {
-                        console.error(error);
+                        $('#loading').fadeOut(function () {
+                            $(this).empty();
+                        });
                         alert('Có lỗi xảy ra khi thanh toán.');
                     }
                 });
             });
-
-
         });
     </script>
 }

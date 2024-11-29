@@ -277,7 +277,7 @@ section {
 
 .header {
     position: fixed;
-    top: 0;
+    top: 0 !important;
     left: 0;
     width: 100%;
     background: #FFFFFF;

@@ -92,6 +92,12 @@
                     <p>Hóa đơn</p>
                 </a>
             </li>
+            <li class="nav-item">
+                <a asp-controller="Ticket" asp-action="Index" class="nav-link">
+                    <i class="nav-icon fas fa-ticket-alt"></i>
+                    <p>Vé xem phim</p>
+                </a>
+            </li>
             @if (User.Identity?.IsAuthenticated ?? false)
             {
                 var role = User.FindFirst(ClaimUserLogin.Role)?.Value;
@@ -113,7 +119,6 @@
             }
         </ul>
     </nav>
-
 </div>
 
 <script>

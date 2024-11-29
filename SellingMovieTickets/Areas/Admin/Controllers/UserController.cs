@@ -18,7 +18,6 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
         private SignInManager<AppUserModel> _signInManager;
         private readonly DataContext _dataContext;
 
-
         public UserController(UserManager<AppUserModel> userManager, SignInManager<AppUserModel> signInManager, DataContext dataContext)
         {
             _userManager = userManager;
@@ -53,19 +52,27 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                         // Lấy avatar, nếu không có thì sử dụng avatar mặc định
                         var avatar = user.Avatar ?? "avatar_default.jpg";
                         var roles = await _userManager.GetRolesAsync(user);
-                        var role = roles.FirstOrDefault() ?? "Unknown";  
+                        var role = roles.FirstOrDefault() ?? "Unknown";
+                        var email = await _userManager.GetEmailAsync(user);
 
                         var claims = new List<Claim>
                                 {
                                     new Claim(ClaimUserLogin.Id, user.Id),
                                     new Claim(ClaimUserLogin.Avatar, avatar),
                                     new Claim(ClaimUserLogin.UserName, user.FullName ?? user.UserName),
+                                    new Claim(ClaimUserLogin.Email, email),
                                     new Claim(ClaimUserLogin.Role, role)
                                 };
 
                         // Tạo claims identity và đăng nhập
                         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                        await _signInManager.SignInWithClaimsAsync(user, false, claims);
+                        var authProperties = new AuthenticationProperties
+                        {
+                            IsPersistent = true, // Cookie tồn tại sau khi đóng trình duyệt
+                            ExpiresUtc = DateTimeOffset.UtcNow.AddHours(1)
+                        };
+                        await _signInManager.SignInWithClaimsAsync(user, authProperties, claims);
+
                         return RedirectToAction("Index", "HomeDashboard");
                     }
                     else

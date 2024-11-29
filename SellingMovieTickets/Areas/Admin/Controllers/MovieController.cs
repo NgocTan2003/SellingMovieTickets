@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -16,20 +17,18 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
     {
         private readonly DataContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
-
-        public MovieController(DataContext context, IWebHostEnvironment webHostEnvironment)
+        private readonly IMapper _mapper;
+        public MovieController(DataContext context, IWebHostEnvironment webHostEnvironment, IMapper mapper)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+            _mapper = mapper;
         }
 
         public async Task<IActionResult> Index(string searchText, int pg)
         {
             var moviesQuery = _context.Movies
-                .Include(m => m.MovieCategoryMappings)
-                    .ThenInclude(mcm => mcm.MovieCategory)
-                .OrderByDescending(x => x.Id)
-                .AsQueryable();
+                .Include(m => m.MovieCategoryMappings).ThenInclude(mcm => mcm.MovieCategory).OrderByDescending(x => x.Id).AsQueryable();
 
             if (!string.IsNullOrEmpty(searchText))
             {
@@ -54,35 +53,20 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
             int recsCount = await moviesQuery.CountAsync();
             var pager = new Paginate(recsCount, pg, pageSize);
             int resSkip = (pg - 1) * pageSize;
-
             var movies = await moviesQuery.Skip(resSkip).Take(pager.PageSize).ToListAsync();
-            var movieViewModel = movies.Select(x => new MovieViewModel
-            {
-                Id = x.Id,
-                Name = x.Name,
-                Description = x.Description,
-                ReleaseDate = x.ReleaseDate,
-                Duration = x.Duration,
-                MovieLanguageFormat = x.MovieLanguageFormat,
-                MovieFormat = x.MovieFormat,
-                StatusMovie = x.StatusMovie,
-                Origin = x.Origin,
-                Price = x.Price,
-                Director = x.Director,
-                Actor = x.Actor,
-                Rating = x.Rating,
-                TrailerUrl = x.TrailerUrl,
-                Status = x.Status,
-                Image = x.Image,
-                CreateBy = x.CreateBy,
-                CreateDate = x.CreateDate,
-                ModifiedBy = x.ModifiedBy,
-                ModifiedDate = x.ModifiedDate,
-                Genres = string.Join(", ", x.MovieCategoryMappings.Select(mcm => mcm.MovieCategory.CategoryName))
-            }).ToList();
+            var movieVM = _mapper.Map<List<MovieViewModel>>(movies);
+
             ViewBag.Pager = pager;
             ViewBag.SearchText = searchText;
-            return View(movieViewModel);
+            return View(movieVM);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Detail(int id)
+        {
+            var movie = await _context.Movies.Include(m => m.MovieCategoryMappings).ThenInclude(mcm => mcm.MovieCategory).Where(x => x.Id == id).FirstOrDefaultAsync();
+            var movieVM = _mapper.Map<MovieViewModel>(movie);
+            return View(movieVM);
         }
 
         [HttpGet]
@@ -217,10 +201,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
-            var movie = await _context.Movies
-               .Include(m => m.MovieCategoryMappings)
-               .ThenInclude(mc => mc.MovieCategory)
-               .FirstOrDefaultAsync(m => m.Id == id);
+            var movie = await _context.Movies.Include(m => m.MovieCategoryMappings).ThenInclude(mc => mc.MovieCategory).FirstOrDefaultAsync(m => m.Id == id);
 
             if (movie == null)
             {

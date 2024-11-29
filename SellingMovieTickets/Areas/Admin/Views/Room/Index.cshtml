@@ -77,7 +77,7 @@
                         <th>Tổng số ghế</th>
                         <th>Trạng thái</th>
                         <th>Ngày tạo</th>
-                        <th>Action</th>
+                        @* <th>Action</th> *@
                     </tr>
                 </thead>
                 <tbody>
@@ -145,6 +145,8 @@
                 }
             });
 
+            console.log("a")
+
             if (str.length > 0) {
                 Swal.fire({
                     title: "Bạn có chắc chắn không?",
@@ -205,3 +207,11 @@
         });
     });
 </script>
+
+
+@if (TempData["Error"] != null)
+{
+    <script>
+        toastr.error('@TempData["Error"]');
+    </script>
+}

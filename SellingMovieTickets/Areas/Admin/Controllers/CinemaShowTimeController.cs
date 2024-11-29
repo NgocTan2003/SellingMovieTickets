@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -17,10 +18,12 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
     {
         private readonly DataContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IMapper _mapper;
 
-        public CinemaShowTimeController(DataContext context)
+        public CinemaShowTimeController(DataContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<IActionResult> Index(string searchText, int pg)
@@ -44,23 +47,11 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
             var pager = new Paginate(recsCount, pg, pageSize);
             int resSkip = (pg - 1) * pageSize;
             var data = cinemaShowTimes.Skip(resSkip).Take(pager.PageSize).ToList();
-
-            var CinemaShowTimeViewModel = data.Select(x => new CinemaShowTimeViewModel
-            {
-                Id = x.Id,
-                StartShowTime = x.StartShowTime,
-                EndShowTime = x.EndShowTime,
-                NumberRoom = x.Room.RoomNumber,
-                NameMovie = x.Movie.Name,
-                CreateBy = x.CreateBy,
-                CreateDate = x.CreateDate,
-                ModifiedBy = x.ModifiedBy,
-                ModifiedDate = x.ModifiedDate
-            }).ToList();
+            var CinemaShowTimeVM = _mapper.Map<List<CinemaShowTimeViewModel>>(data);
 
             ViewBag.Pager = pager;
             ViewBag.SearchText = searchText;
-            return View(CinemaShowTimeViewModel);
+            return View(CinemaShowTimeVM);
         }
 
         [HttpGet]
@@ -163,7 +154,6 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
         {
             var cinemaShowTime = await _context.CinemaShowTimes.FindAsync(id);
             var movies = await _context.Movies.Select(m => new { m.Id, m.Name }).ToListAsync();
-            var rooms = await _context.Rooms.Where(r => r.StatusRoom == StatusRoom.Active).Select(r => new { r.Id, r.RoomNumber }).ToListAsync();
 
             if (cinemaShowTime == null)
             {
@@ -173,7 +163,6 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
 
             var updateCinemaShowTime = MapToUpdateCinemaShowTime(cinemaShowTime);
             updateCinemaShowTime.MovieIds = new SelectList(movies, "Id", "Name");
-            updateCinemaShowTime.NumberRooms = new SelectList(rooms, "Id", "RoomNumber");
             return View(updateCinemaShowTime);
         }
 
@@ -183,7 +172,6 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
             {
                 StartShowTime = cinemaShowTime.StartShowTime,
                 SelectedMovieId = cinemaShowTime.MovieId,
-                SelectedNumberRoomId = cinemaShowTime.RoomId
             };
         }
 
@@ -192,9 +180,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
         public async Task<IActionResult> Edit(int id, UpdateCinemaShowTime updateCinemaST)
         {
             var movies = await _context.Movies.Select(m => new { m.Id, m.Name }).ToListAsync();
-            var rooms = await _context.Rooms.Where(r => r.StatusRoom == StatusRoom.Active).Select(r => new { r.Id, r.RoomNumber }).ToListAsync();
             updateCinemaST.MovieIds = new SelectList(movies, "Id", "Name");
-            updateCinemaST.NumberRooms = new SelectList(rooms, "Id", "RoomNumber");
 
             var nameEditor = User.FindFirstValue(ClaimUserLogin.UserName);
             var existingCinemaShowTimes = await _context.CinemaShowTimes.FindAsync(id);
@@ -214,25 +200,9 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                 }
 
                 DateTime endShowTime = updateCinemaST.StartShowTime.AddMinutes(selectedMovie.Duration);
-                // Kiểm tra xem có suất chiếu nào trùng thời gian trong cùng phòng hay không
-                var overlappingShowTimes = await _context.CinemaShowTimes
-                    .Where(s => s.RoomId == updateCinemaST.SelectedNumberRoomId &&
-                                s.StartShowTime < endShowTime &&  // Thời gian bắt đầu của suất chiếu mới sau khi kết thúc của suất chiếu hiện tại
-                                s.StartShowTime.AddMinutes(s.Movie.Duration) > updateCinemaST.StartShowTime)  // Thời gian kết thúc của suất chiếu hiện tại sau khi bắt đầu của suất chiếu mới
-                    .ToListAsync();
-
-                if (overlappingShowTimes.Any())
-                {
-                    TempData["Error"] = "Phòng đã có suất chiếu vào thời gian này. Vui lòng chọn phòng hoặc thời gian khác.";
-                    return View(updateCinemaST);
-                }
-                else
-                {
-                    existingCinemaShowTimes.StartShowTime = updateCinemaST.StartShowTime;
-                    existingCinemaShowTimes.EndShowTime = endShowTime;
-                    existingCinemaShowTimes.MovieId = updateCinemaST.SelectedMovieId;
-                    existingCinemaShowTimes.RoomId = updateCinemaST.SelectedNumberRoomId;
-                }
+                existingCinemaShowTimes.StartShowTime = updateCinemaST.StartShowTime;
+                existingCinemaShowTimes.EndShowTime = endShowTime;
+                existingCinemaShowTimes.MovieId = updateCinemaST.SelectedMovieId;
                 _context.Update(existingCinemaShowTimes);
                 await _context.SaveChangesAsync();
 

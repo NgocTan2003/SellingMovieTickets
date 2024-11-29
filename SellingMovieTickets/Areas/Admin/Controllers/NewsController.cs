@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SellingMovieTickets.Areas.Admin.Models.ViewModels;
+using SellingMovieTickets.Areas.Admin.Models.ViewModels.Movie;
 using SellingMovieTickets.Areas.Admin.Models.ViewModels.News;
 using SellingMovieTickets.Models.Entities;
 using SellingMovieTickets.Models.Enum;
@@ -18,11 +20,13 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
     {
         private readonly DataContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IMapper _mapper;
 
-        public NewsController(DataContext context, IWebHostEnvironment webHostEnvironment)
+        public NewsController(DataContext context, IWebHostEnvironment webHostEnvironment, IMapper mapper)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+            _mapper = mapper;
         }
 
         public async Task<IActionResult> Index(string searchText, int pg)
@@ -47,28 +51,11 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
             var pager = new Paginate(recsCount, pg, pageSize);
             int resSkip = (pg - 1) * pageSize;
             var data = news.Skip(resSkip).Take(pager.PageSize).ToList();
-
-            var newsViewModels = data.Select(x => new NewsViewModel
-            {
-                Id = x.Id,
-                Title = x.Title,
-                Description = x.Description,
-                Detail = x.Detail,
-                Image = x.Image,
-                SeoTitle = x.SeoTitle,
-                SeoDescription = x.SeoDescription,
-                SeoKeywords = x.SeoKeywords,
-                Status = x.Status,
-                StartDate = x.StartDate,
-                CreateBy = x.CreateBy,
-                CreateDate = x.CreateDate,
-                ModifiedBy = x.ModifiedBy,
-                ModifiedDate = x.ModifiedDate
-            }).ToList();
+            var newsVM = _mapper.Map<List<NewsViewModel>>(data);
 
             ViewBag.Pager = pager;
             ViewBag.SearchText = searchText;
-            return View(newsViewModels);
+            return View(newsVM);
         }
 
 
