@@ -17,7 +17,6 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
     public class CinemaShowTimeController : Controller
     {
         private readonly DataContext _context;
-        private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IMapper _mapper;
 
         public CinemaShowTimeController(DataContext context, IMapper mapper)
@@ -182,7 +181,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
             var movies = await _context.Movies.Select(m => new { m.Id, m.Name }).ToListAsync();
             updateCinemaST.MovieIds = new SelectList(movies, "Id", "Name");
 
-            var nameEditor = User.FindFirstValue(ClaimUserLogin.UserName);
+            var nameEditor = User.FindFirstValue(ClaimUserLogin.FullName);
             var existingCinemaShowTimes = await _context.CinemaShowTimes.FindAsync(id);
             if (existingCinemaShowTimes == null)
             {

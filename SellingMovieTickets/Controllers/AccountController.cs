@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,6 @@ using SellingMovieTickets.Models.ViewModels.Accounts;
 using SellingMovieTickets.Models.ViewModels.Users;
 using SellingMovieTickets.Repository;
 using System.Data;
-using System.Net.Sockets;
 using System.Security.Claims;
 
 namespace SellingMovieTickets.Controllers
@@ -22,7 +22,6 @@ namespace SellingMovieTickets.Controllers
         private readonly IEmailSender _emailSender;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly DataContext _dataContext;
-
 
         public AccountController(UserManager<AppUserModel> userManager, SignInManager<AppUserModel> signInManager, IEmailSender emailSender,
              RoleManager<IdentityRole> roleManager, DataContext dataContext)
@@ -38,7 +37,6 @@ namespace SellingMovieTickets.Controllers
         {
             return View();
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -65,7 +63,7 @@ namespace SellingMovieTickets.Controllers
                                 {
                                     new Claim(ClaimUserLogin.Id, findUserName.Id),
                                     new Claim(ClaimUserLogin.Avatar, avatar),
-                                    new Claim(ClaimUserLogin.UserName, findUserName.FullName ?? findUserName.UserName),
+                                    new Claim(ClaimUserLogin.FullName, (!string.IsNullOrWhiteSpace(findUserName.FullName) ? findUserName.FullName : findUserName.UserName)),
                                     new Claim(ClaimUserLogin.Email, email),
                                     new Claim(ClaimUserLogin.Role, role)
                                 };
@@ -79,11 +77,12 @@ namespace SellingMovieTickets.Controllers
                     };
                     await _signInManager.SignInWithClaimsAsync(findUserName, authProperties, claims);
 
-                    TempData["Success"] = "Đăng nhập thành công";
                     var receiver = findUserName.Email;
-                    var subject = "Đăng nhập trên thiết bị thành công";
-                    var message = "Đăng nhập thành công, trải nghiệm dịch vụ nhé";
+                    var subject = "Đăng nhập thành công";
+                    var message = "Bạn vừa đăng nhập vào UmiCinema, chúc bạn có trải nghiệm thú vị nhé.";
                     await _emailSender.SendEmailAsync(receiver, subject, message);
+
+                    TempData["Success"] = "Đăng nhập thành công";
                     return RedirectToAction("Index", "Home");
                 }
                 else
@@ -100,6 +99,262 @@ namespace SellingMovieTickets.Controllers
             }
         }
 
+        public async Task LoginWithGoole()
+        {
+            await HttpContext.ChallengeAsync(GoogleDefaults.AuthenticationScheme,
+                new AuthenticationProperties
+                {
+                    RedirectUri = Url.Action("GoogleResponse")
+                });
+        }
+
+        //public async Task<IActionResult> GoogleResponse()
+        //{
+        //    List<string> roles = new List<string>();
+        //    var nameRole = Role.Customer;
+        //    var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+        //    if (!result.Succeeded)
+        //    {
+        //        return RedirectToAction("Login");
+        //    }
+        //    var claims = result.Principal.Identities.FirstOrDefault().Claims.Select(claim => new
+        //    {
+        //        claim.Issuer,
+        //        claim.OriginalIssuer,
+        //        claim.Type,
+        //        claim.Value
+        //    });
+
+        //    var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+        //    var lastName = claims.FirstOrDefault(c => c.Type == ClaimTypes.Surname)?.Value;
+        //    var firstName = claims.FirstOrDefault(c => c.Type == ClaimTypes.GivenName)?.Value;
+        //    var fullName = lastName + " " + firstName;
+        //    string UserName = email.Split("@")[0];
+
+        //    var existingUser = await _userManager.FindByEmailAsync(email);
+        //    if (existingUser == null)
+        //    {
+        //        var passwordHasher = new PasswordHasher<AppUserModel>();
+        //        var hashedPassword = passwordHasher.HashPassword(null, "123456789");
+        //        var newUser = new AppUserModel { UserName = UserName, Email = email, LastName = lastName, FirstName = firstName, FullName = fullName };
+
+        //        IdentityResult createUserResult = await _userManager.CreateAsync(newUser);
+
+        //        if (!await _roleManager.RoleExistsAsync(nameRole))
+        //        {
+        //            await _roleManager.CreateAsync(new IdentityRole(Role.Customer));
+        //        }
+        //        roles.Add(nameRole);
+        //        var AddRole = await _userManager.AddToRolesAsync(newUser, roles);
+
+        //        if (createUserResult.Succeeded && AddRole.Succeeded)
+        //        {
+        //            CustomerManagementModel customerManagement = new CustomerManagementModel
+        //            {
+        //                UserId = newUser.Id,
+        //                CreateDate = DateTime.Now
+        //            };
+        //            await _dataContext.CustomerManagements.AddAsync(customerManagement);
+        //            await _dataContext.SaveChangesAsync();
+
+        //            var claimsSignIn = new List<Claim>
+        //                        {
+        //                            new Claim(ClaimUserLogin.Id, newUser.Id),
+        //                            new Claim(ClaimUserLogin.Avatar, "avatar_default.jpg"),
+        //                            new Claim(ClaimUserLogin.FullName, newUser.FullName),
+        //                            new Claim(ClaimUserLogin.Email, newUser.Email),
+        //                            new Claim(ClaimUserLogin.Role, nameRole)
+        //                        };
+
+        //            // Tạo claims identity 
+        //            var claimsIdentity = new ClaimsIdentity(claimsSignIn, CookieAuthenticationDefaults.AuthenticationScheme);
+        //            var authProperties = new AuthenticationProperties
+        //            {
+        //                IsPersistent = true, // Cookie tồn tại sau khi đóng trình duyệt
+        //                ExpiresUtc = DateTimeOffset.UtcNow.AddHours(1)
+        //            };
+        //            await _signInManager.SignInWithClaimsAsync(newUser, authProperties, claimsSignIn);
+
+        //            var receiver = newUser.Email;
+        //            var subject = "Đăng nhập thành công";
+        //            var message = "Bạn vừa đăng nhập vào UmiCinema bằng tài khoản Google này, chúc bạn có trải nghiệm thú vị nhé.";
+        //            await _emailSender.SendEmailAsync(receiver, subject, message);
+
+        //            TempData["Success"] = "Tạo tài khoản thành công";
+        //            return RedirectToAction("Index", "Home");
+        //        }
+        //        else
+        //        {
+        //            TempData["Error"] = "Đăng ký tài khoản thất bại.";
+        //            return RedirectToAction("Login", "Account");
+        //        }
+        //    }
+        //    else
+        //    {
+        //        var roleUsers = await _userManager.GetRolesAsync(existingUser);
+        //        var role = roleUsers.FirstOrDefault() ?? "Unknown";
+        //        var avatar = existingUser.Avatar ?? "avatar_default.jpg";
+
+        //        var claimsSignIn = new List<Claim>
+        //               {
+        //                    new Claim(ClaimUserLogin.Id, existingUser.Id),
+        //                    new Claim(ClaimUserLogin.Avatar, avatar),
+        //                    new Claim(ClaimUserLogin.FullName, existingUser.FullName),
+        //                    new Claim(ClaimUserLogin.Email, existingUser.Email),
+        //                    new Claim(ClaimUserLogin.Role, role)
+        //               };
+
+        //        // Tạo claims identity 
+        //        var claimsIdentity = new ClaimsIdentity(claimsSignIn, CookieAuthenticationDefaults.AuthenticationScheme);
+        //        var authProperties = new AuthenticationProperties
+        //        {
+        //            IsPersistent = true, // Cookie tồn tại sau khi đóng trình duyệt
+        //            ExpiresUtc = DateTimeOffset.UtcNow.AddHours(1)
+        //        };
+        //        await _signInManager.SignInWithClaimsAsync(existingUser, authProperties, claimsSignIn);
+
+        //        var receiver = existingUser.Email;
+        //        var subject = "Đăng nhập thành công";
+        //        var message = "Bạn vừa đăng nhập vào UmiCinema bằng tài khoản Google này, chúc bạn có trải nghiệm thú vị nhé.";
+        //        await _emailSender.SendEmailAsync(receiver, subject, message);
+
+        //        TempData["Success"] = "Tạo tài khoản thành công";
+        //        return RedirectToAction("Index", "Home");
+        //    }
+        //}
+
+        //sac 
+        public async Task<IActionResult> GoogleResponse()
+        {
+            var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+            if (!result.Succeeded)
+            {
+                return RedirectToAction("Login");
+            }
+
+            var claims = ExtractClaims(result);
+            var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+            var lastName = claims.FirstOrDefault(c => c.Type == ClaimTypes.Surname)?.Value;
+            var firstName = claims.FirstOrDefault(c => c.Type == ClaimTypes.GivenName)?.Value;
+            var fullName = $"{lastName} {firstName}";
+            var userName = email.Split("@")[0];
+
+            var existingUser = await _userManager.FindByEmailAsync(email);
+
+            if (existingUser == null)
+            {
+                return await HandleNewUser(email, userName, firstName, lastName, fullName);
+            }
+            else
+            {
+                return await HandleExistingUser(existingUser);
+            }
+        }
+
+        // Hàm tách Claims từ kết quả Google Authentication
+        private IEnumerable<Claim> ExtractClaims(AuthenticateResult result)
+        {
+            return result.Principal.Identities.FirstOrDefault().Claims.Select(claim => claim);
+        }
+
+        // Xử lý khi người dùng mới chưa tồn tại
+        private async Task<IActionResult> HandleNewUser(string email, string userName, string firstName, string lastName, string fullName)
+        {
+            var hashedPassword = new PasswordHasher<AppUserModel>().HashPassword(null, "123456789");
+            var newUser = new AppUserModel
+            {
+                UserName = userName,
+                Email = email,
+                LastName = lastName,
+                FirstName = firstName,
+                FullName = fullName
+            };
+
+            var createUserResult = await _userManager.CreateAsync(newUser);
+
+            if (!await _roleManager.RoleExistsAsync(Role.Customer))
+            {
+                await _roleManager.CreateAsync(new IdentityRole(Role.Customer));
+            }
+
+            var addRoleResult = await _userManager.AddToRolesAsync(newUser, new List<string> { Role.Customer });
+
+            if (createUserResult.Succeeded && addRoleResult.Succeeded)
+            {
+                await CreateCustomerRecord(newUser.Id);
+                await SignInUser(newUser, Role.Customer, "avatar_default.jpg");
+                await SendSuccessEmail(newUser.Email);
+
+                TempData["Success"] = "Tạo tài khoản thành công";
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                TempData["Error"] = "Đăng ký tài khoản thất bại.";
+                return RedirectToAction("Login", "Account");
+            }
+        }
+
+        // Xử lý khi người dùng đã tồn tại
+        private async Task<IActionResult> HandleExistingUser(AppUserModel existingUser)
+        {
+            var roleUsers = await _userManager.GetRolesAsync(existingUser);
+            var role = roleUsers.FirstOrDefault() ?? "Unknown";
+            var avatar = existingUser.Avatar ?? "avatar_default.jpg";
+
+            await SignInUser(existingUser, role, avatar);
+            await SendSuccessEmail(existingUser.Email);
+
+            TempData["Success"] = "Đăng nhập thành công";
+            return RedirectToAction("Index", "Home");
+        }
+
+        // Tạo bản ghi khách hàng
+        private async Task CreateCustomerRecord(string userId)
+        {
+            var customerManagement = new CustomerManagementModel
+            {
+                UserId = userId,
+                CreateDate = DateTime.Now
+            };
+            await _dataContext.CustomerManagements.AddAsync(customerManagement);
+            await _dataContext.SaveChangesAsync();
+        }
+
+        // Thực hiện đăng nhập và tạo Claims
+        private async Task SignInUser(AppUserModel user, string role, string avatar)
+        {
+            var claimsSignIn = new List<Claim>
+            {
+                new Claim(ClaimUserLogin.Id, user.Id),
+                new Claim(ClaimUserLogin.Avatar, avatar),
+                new Claim(ClaimUserLogin.FullName, user.FullName),
+                new Claim(ClaimUserLogin.Email, user.Email),
+                new Claim(ClaimUserLogin.Role, role)
+            };
+
+            var claimsIdentity = new ClaimsIdentity(claimsSignIn, CookieAuthenticationDefaults.AuthenticationScheme);
+            var authProperties = new AuthenticationProperties
+            {
+                IsPersistent = true,
+                ExpiresUtc = DateTimeOffset.UtcNow.AddHours(1)
+            };
+
+            await _signInManager.SignInWithClaimsAsync(user, authProperties, claimsSignIn);
+        }
+
+        // Gửi email xác nhận đăng nhập thành công
+        private async Task SendSuccessEmail(string email)
+        {
+            var subject = "Đăng nhập thành công";
+            var message = "Bạn vừa đăng nhập vào UmiCinema bằng tài khoản Google này, chúc bạn có trải nghiệm thú vị nhé.";
+            await _emailSender.SendEmailAsync(email, subject, message);
+        }
+
+
+
+
+
         public IActionResult Register()
         {
             return View();
@@ -112,7 +367,7 @@ namespace SellingMovieTickets.Controllers
             if (ModelState.IsValid)
             {
                 List<string> roles = new List<string>();
-                var nameRole = "Customer";
+                var nameRole = Role.Customer;
 
                 var findUserName = await _userManager.FindByNameAsync(user.Username);
                 var findEmail = await _userManager.FindByEmailAsync(user.Email);
@@ -166,11 +421,9 @@ namespace SellingMovieTickets.Controllers
 
         public async Task<IActionResult> Logout(string returnUrl = "/")
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction("Login", "Account");
-
-            //await _signInManager.SignOutAsync();
-            //return Redirect(returnUrl);
+            await HttpContext.SignOutAsync();
+            await _signInManager.SignOutAsync();
+            return Redirect(returnUrl);
         }
 
         public async Task<IActionResult> ForgotPassword()
@@ -232,7 +485,6 @@ namespace SellingMovieTickets.Controllers
                                style='display: inline-block; padding: 10px 20px; font-size: 16px; color: #fff; background-color: #007bff; text-decoration: none; border-radius: 5px;'>
                                Đổi mật khẩu
                             </a>";
-
 
                 await _emailSender.SendEmailAsync(receiver, subject, message);
             }

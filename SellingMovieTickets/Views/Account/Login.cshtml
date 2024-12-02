@@ -24,7 +24,13 @@
                         <div class="d-flex justify-content-end mb-1">
                             <a asp-controller="Account" asp-action="ForgotPassword" class="forgot-password">Quên mật khẩu?</a>
                         </div>
-                        <button class="btn btn-default"> Đăng nhập</button>
+                        <button class="btn btn-default">Đăng nhập</button>
+                        <div class="text-center mb-2 mt-2" style="font-size: 16px;">
+                            <span>Hoặc</span>
+                        </div>
+                        <a asp-action="LoginWithGoole" asp-controller="Account" type="button" class="btn btn-danger w-100 d-flex align-items-center justify-content-center mb-3">
+                            <i class="fab fa-google me-2 mr-2"></i>Đăng nhập bằng Google
+                        </a>
                         <div class="box_optionRegister">
                             <p class="text-white">
                                 Bạn chưa có tài khoản?

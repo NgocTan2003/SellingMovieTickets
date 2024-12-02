@@ -2,6 +2,7 @@
 using SellingMovieTickets.Areas.Admin.Models.ViewModels.Adv;
 using SellingMovieTickets.Areas.Admin.Models.ViewModels.Category;
 using SellingMovieTickets.Areas.Admin.Models.ViewModels.CinemaShowTime;
+using SellingMovieTickets.Areas.Admin.Models.ViewModels.CustomerManagement;
 using SellingMovieTickets.Areas.Admin.Models.ViewModels.Movie;
 using SellingMovieTickets.Areas.Admin.Models.ViewModels.MovieCategory;
 using SellingMovieTickets.Areas.Admin.Models.ViewModels.News;
@@ -39,7 +40,8 @@ namespace SellingMovieTickets.Areas.Admin.Repository
             CreateMap<TicketModel, TicketViewModel>().ReverseMap();
             CreateMap<OrderDetailModel, OrderDetailViewModel>().ReverseMap();
             CreateMap<OtherServicesOrderModel, OtherServicesOrderViewModel>().ReverseMap();
-
+            CreateMap<CustomerManagementModel, CustomerManagementViewModel>()
+                    .ForPath(dest => dest.AppUser.FullName, opt => opt.MapFrom(src => src.AppUser.FullName));
 
         }
     }

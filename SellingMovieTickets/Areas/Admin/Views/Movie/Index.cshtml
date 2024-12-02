@@ -149,8 +149,6 @@
                 }
             });
 
-            console.log("c")
-
             if (str.length > 0) {
                 Swal.fire({
                     title: "Bạn có chắc chắn không?",
@@ -204,10 +202,8 @@
                 this.checked = checkStatus;
                 if (this.checked) {
                     checkbox.attr('selected', 'checked');
-                    console.log("a")
                 } else {
                     checkbox.attr('selected', '');
-                    console.log("b")
                 }
             })
         });

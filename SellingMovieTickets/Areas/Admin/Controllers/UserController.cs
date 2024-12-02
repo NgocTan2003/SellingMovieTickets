@@ -59,7 +59,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                                 {
                                     new Claim(ClaimUserLogin.Id, user.Id),
                                     new Claim(ClaimUserLogin.Avatar, avatar),
-                                    new Claim(ClaimUserLogin.UserName, user.FullName ?? user.UserName),
+                                    new Claim(ClaimUserLogin.FullName, user.FullName ?? user.UserName),
                                     new Claim(ClaimUserLogin.Email, email),
                                     new Claim(ClaimUserLogin.Role, role)
                                 };

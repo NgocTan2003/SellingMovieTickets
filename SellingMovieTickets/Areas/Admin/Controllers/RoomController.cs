@@ -93,7 +93,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                var nameEditor = User.FindFirstValue(ClaimUserLogin.UserName);
+                var nameEditor = User.FindFirstValue(ClaimUserLogin.FullName);
                 var existingRoom = await _context.Rooms.FirstOrDefaultAsync(p => p.RoomNumber == room.RoomNumber);
 
                 if (existingRoom != null)
@@ -166,7 +166,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                     StatusRoom.SuspendOperation
                 });
 
-            var nameEditor = User.FindFirstValue(ClaimUserLogin.UserName);
+            var nameEditor = User.FindFirstValue(ClaimUserLogin.FullName);
             var existingRoom = await _context.Rooms.FindAsync(id);
 
             if (existingRoom == null)

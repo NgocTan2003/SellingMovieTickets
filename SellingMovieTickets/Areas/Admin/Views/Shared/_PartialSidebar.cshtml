@@ -13,7 +13,7 @@
         <div class="info">
             @if (User.Identity?.IsAuthenticated ?? false)
             {
-                var fullName = User.FindFirst(ClaimUserLogin.UserName)?.Value;
+                var fullName = User.FindFirst(ClaimUserLogin.FullName)?.Value;
                 <a href="#"><i aria-hidden="true"></i>@fullName</a>
             }
         </div>
@@ -96,6 +96,12 @@
                 <a asp-controller="Ticket" asp-action="Index" class="nav-link">
                     <i class="nav-icon fas fa-ticket-alt"></i>
                     <p>Vé xem phim</p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a asp-controller="CustomerManagement" asp-action="Index" class="nav-link">
+                    <i class="nav-icon fas fa-star"></i>
+                    <p>Điểm thưởng khách hàng</p>
                 </a>
             </li>
             @if (User.Identity?.IsAuthenticated ?? false)

@@ -93,7 +93,13 @@ namespace SellingMovieTickets.Repository
                 .HasOne(o => o.CustomerPointsHistory)
                 .WithOne(c => c.Order)
                 .HasForeignKey<CustomerPointsHistoryModel>(c => c.OrderId)
-                .OnDelete(DeleteBehavior.Restrict);  
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CustomerManagementModel>()
+                .HasOne(cm => cm.AppUser)
+                .WithMany()
+                .HasForeignKey(cm => cm.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             base.OnModelCreating(modelBuilder);
         }

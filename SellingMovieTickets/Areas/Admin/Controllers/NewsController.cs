@@ -71,7 +71,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                var nameEditor = User.FindFirstValue(ClaimUserLogin.UserName);
+                var nameEditor = User.FindFirstValue(ClaimUserLogin.FullName);
                 news.SeoTitle = news.Title.Replace(" ", "-");
                 var seoTitle = await _context.News.FirstOrDefaultAsync(p => p.SeoTitle == news.SeoTitle);
                 if (seoTitle != null)
@@ -130,7 +130,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, NewsModel news)
         {
-            var nameEditor = User.FindFirstValue(ClaimUserLogin.UserName);
+            var nameEditor = User.FindFirstValue(ClaimUserLogin.FullName);
             var existingNews = await _context.News.FindAsync(id);
             if (news.ImageUpload == null)
             {

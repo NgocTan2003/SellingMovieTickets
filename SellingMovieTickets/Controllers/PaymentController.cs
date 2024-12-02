@@ -55,7 +55,7 @@ namespace SellingMovieTickets.Controllers
             {
                 try
                 {
-                    var userName = User.FindFirstValue(ClaimUserLogin.UserName);
+                    var userName = User.FindFirstValue(ClaimUserLogin.FullName);
                     var userEmail = User.FindFirstValue(ClaimUserLogin.Email);
 
                     if (paymentInfo.PaymentType == PaymentType.VNPAY)

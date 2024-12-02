@@ -87,7 +87,6 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
         {
             var roles = await _roleManager.Roles.ToListAsync();
             ViewBag.Roles = new SelectList(roles, "Id", "Name");
-
             var model = new CreateAccount();
             return View(model);
         }
@@ -98,7 +97,9 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                var nameEditor = User.FindFirstValue(ClaimUserLogin.UserName);
+                var nameEditor = User.FindFirstValue(ClaimUserLogin.FullName);
+                var emailEditor = User.FindFirstValue(ClaimUserLogin.Email);
+
                 var findUserName = await _userManager.FindByNameAsync(model.User.Username);
                 var findEmail = await _userManager.FindByEmailAsync(model.User.Email);
                 if (findUserName != null)
@@ -234,7 +235,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string Id, UpdateAccount model)
         {
-            var nameEditor = User.FindFirstValue(ClaimUserLogin.UserName);
+            var nameEditor = User.FindFirstValue(ClaimUserLogin.FullName);
             var user = await _userManager.FindByIdAsync(Id);
             var userRole = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
             if (model.User.ImageUpload == null)

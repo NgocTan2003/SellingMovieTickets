@@ -75,7 +75,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                     return View(movieCategory);
                 }
 
-                var nameEditor = User.FindFirstValue(ClaimUserLogin.UserName);
+                var nameEditor = User.FindFirstValue(ClaimUserLogin.FullName);
                 movieCategory.CreateDate = DateTime.Now;
                 movieCategory.ModifiedDate = DateTime.Now;
                 movieCategory.CreateBy = nameEditor;
@@ -106,7 +106,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, MovieCategoryModel movieCategory)
         {
-            var nameEditor = User.FindFirstValue(ClaimUserLogin.UserName);
+            var nameEditor = User.FindFirstValue(ClaimUserLogin.FullName);
             var existingMovieCategory = await _context.MovieCategories.FindAsync(id);
             if (existingMovieCategory == null)
             {

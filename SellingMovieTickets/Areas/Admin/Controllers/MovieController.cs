@@ -124,7 +124,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                var nameEditor = User.FindFirstValue(ClaimUserLogin.UserName);
+                var nameEditor = User.FindFirstValue(ClaimUserLogin.FullName);
                 var existingMovie = await _context.Movies.FirstOrDefaultAsync(p => p.Name == movie.Name);
 
                 if (existingMovie != null)
@@ -279,7 +279,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                 });
             movie.MovieCategoryList = new MultiSelectList(_context.MovieCategories, "Id", "CategoryName");
 
-            var nameEditor = User.FindFirstValue(ClaimUserLogin.UserName);
+            var nameEditor = User.FindFirstValue(ClaimUserLogin.FullName);
             var existingMovie = await _context.Movies.FindAsync(id);
             if (movie.ImageUpload == null)
             {

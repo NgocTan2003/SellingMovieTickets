@@ -70,7 +70,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                var nameEditor = User.FindFirstValue(ClaimUserLogin.UserName);
+                var nameEditor = User.FindFirstValue(ClaimUserLogin.FullName);
                 category.Slug = GenerateSlug(category.Name);
 
                 var slug = await _context.Categories.FirstOrDefaultAsync(p => p.Slug == category.Slug);
@@ -148,7 +148,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, CategoryModel category)
         {
-            var nameEditor = User.FindFirstValue(ClaimUserLogin.UserName);
+            var nameEditor = User.FindFirstValue(ClaimUserLogin.FullName);
             var existingCategory = await _context.Categories.FindAsync(id);
             if (existingCategory == null)
             {

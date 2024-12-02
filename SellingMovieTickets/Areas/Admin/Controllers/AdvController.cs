@@ -67,7 +67,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                var nameEditor = User.FindFirstValue(ClaimUserLogin.UserName);
+                var nameEditor = User.FindFirstValue(ClaimUserLogin.FullName);
 
                 if (adv.ImageUpload != null)
                 {
@@ -119,7 +119,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, AdvModel adv)
         {
-            var nameEditor = User.FindFirstValue(ClaimUserLogin.UserName);
+            var nameEditor = User.FindFirstValue(ClaimUserLogin.FullName);
             var existingAdv = await _context.Advs.FindAsync(id);
             if (adv.ImageUpload == null)
             {

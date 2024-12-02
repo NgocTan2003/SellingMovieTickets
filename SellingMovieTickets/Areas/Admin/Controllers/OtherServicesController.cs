@@ -68,7 +68,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                var nameEditor = User.FindFirstValue(ClaimUserLogin.UserName);
+                var nameEditor = User.FindFirstValue(ClaimUserLogin.FullName);
 
                 var existingOrtherServices = await _context.OtherServices.FirstOrDefaultAsync(p => p.Name == createOther.Name);
                 if (existingOrtherServices != null)
@@ -144,7 +144,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, UpdateOtherServices updateOther)
         {
-            var nameEditor = User.FindFirstValue(ClaimUserLogin.UserName);
+            var nameEditor = User.FindFirstValue(ClaimUserLogin.FullName);
             var existingOtherServices = await _context.OtherServices.FindAsync(id);
             if (updateOther.ImageUpload == null)
             {
