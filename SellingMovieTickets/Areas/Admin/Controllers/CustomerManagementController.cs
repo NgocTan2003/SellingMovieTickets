@@ -52,5 +52,10 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
             return View(customerManagementVM);
         }
 
+        public IActionResult Detail()
+        {
+            return View();
+        }
+
     }
 }
