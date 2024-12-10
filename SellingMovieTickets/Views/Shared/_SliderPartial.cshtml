@@ -43,7 +43,7 @@
                 @foreach (var item in Model)
                 {
                     <div class="carousel-item @(Model.First() == item ? "active" : "")">
-                        <img src="/media/advs/@item.Image" class="d-block w-100" alt="@item.Title" style="width: 100vw; height: auto; max-height: 100vh; object-fit: cover;">
+                        <img src="@item.Image" class="d-block w-100" alt="@item.Title" style="width: 100vw; height: auto; max-height: 100vh; object-fit: cover;">
                     </div>
                 }
             </div>

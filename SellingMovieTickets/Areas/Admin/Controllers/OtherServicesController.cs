@@ -9,6 +9,7 @@ using SellingMovieTickets.Areas.Admin.Models.ViewModels.OtherServices;
 using SellingMovieTickets.Models.Entities;
 using SellingMovieTickets.Models.Enum;
 using SellingMovieTickets.Repository;
+using SellingMovieTickets.Services.Interfaces;
 using System.Security.Claims;
 
 namespace SellingMovieTickets.Areas.Admin.Controllers
@@ -18,13 +19,14 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
     public class OtherServicesController : Controller
     {
         private readonly DataContext _context;
-        private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IMapper _mapper;
-        public OtherServicesController(DataContext context, IWebHostEnvironment webHostEnvironment, IMapper mapper)
+        private readonly IAwsS3Service _awsS3Service;
+
+        public OtherServicesController(DataContext context, IAwsS3Service awsS3Service, IMapper mapper)
         {
             _context = context;
-            _webHostEnvironment = webHostEnvironment;
             _mapper = mapper;
+            _awsS3Service = awsS3Service;
         }
 
         public async Task<IActionResult> Index(string searchText, int pg)
@@ -87,20 +89,16 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                 otherServices.ModifiedDate = DateTime.Now;
                 if (createOther.ImageUpload != null)
                 {
-                    string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/otherServices");
-                    string imageName = Guid.NewGuid().ToString() + "_" + createOther.ImageUpload.FileName;
-                    string filePath = Path.Combine(uploadDir, imageName);
-
-                    if (!Directory.Exists(uploadDir))
+                    var result = await _awsS3Service.UploadFile(createOther.ImageUpload, "otherservices", createOther.ImageUpload.FileName);
+                    if (result.StatusCode == 200)
                     {
-                        Directory.CreateDirectory(uploadDir);
+                        otherServices.Image = result.PresignedUrl;
                     }
-
-                    using (FileStream fs = new FileStream(filePath, FileMode.Create))
+                    else
                     {
-                        await createOther.ImageUpload.CopyToAsync(fs);
+                        TempData["Error"] = "Lỗi: " + string.Join(", ", result.Message);
+                        return View(createOther);
                     }
-                    otherServices.Image = imageName;
                 }
                 _context.Add(otherServices);
                 await _context.SaveChangesAsync();
@@ -170,22 +168,23 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                 {
                     if (existingOtherServices.Image != null)
                     {
-                        string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/otherServices");
-                        string oldFileImage = Path.Combine(uploadsDir, existingOtherServices.Image);
-                        if (System.IO.File.Exists(oldFileImage))
+                        var resultDelete = await _awsS3Service.DeleteFileAsync(existingOtherServices.Image);
+                        if (resultDelete.StatusCode != 200)
                         {
-                            System.IO.File.Delete(oldFileImage);
+                            TempData["Error"] = "Lỗi: " + string.Join(", ", resultDelete.Message);
+                            return View(updateOther);
                         }
                     }
-                    string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/otherServices");
-                    string imageName = Guid.NewGuid().ToString() + "_" + updateOther.ImageUpload.FileName;
-                    string filePath = Path.Combine(uploadDir, imageName);
-
-                    using (FileStream fs = new FileStream(filePath, FileMode.Create))
+                    var resultCreate = await _awsS3Service.UploadFile(updateOther.ImageUpload, "otherservices", updateOther.ImageUpload.FileName);
+                    if (resultCreate.StatusCode == 200)
                     {
-                        await updateOther.ImageUpload.CopyToAsync(fs);
+                        existingOtherServices.Image = resultCreate.PresignedUrl;
                     }
-                    existingOtherServices.Image = imageName;
+                    else
+                    {
+                        TempData["Error"] = resultCreate.Message;
+                        return View(updateOther);
+                    }
                 }
 
                 _context.Update(existingOtherServices);
@@ -207,11 +206,11 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
             OtherServicesModel otherServices = await _context.OtherServices.FindAsync(Id);
             if (otherServices.Image != null)
             {
-                string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/otherServices");
-                string oldFileImage = Path.Combine(uploadsDir, otherServices.Image);
-                if (System.IO.File.Exists(oldFileImage))
+                var resultDelete = await _awsS3Service.DeleteFileAsync(otherServices.Image);
+                if (resultDelete.StatusCode != 200)
                 {
-                    System.IO.File.Delete(oldFileImage);
+                    TempData["Error"] = resultDelete.Message;
+                    return RedirectToAction("Index");
                 }
             }
             _context.OtherServices.Remove(otherServices);
@@ -235,7 +234,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult DeleteAll(string ids)
+        public async Task<IActionResult> DeleteAll(string ids)
         {
             if (!string.IsNullOrEmpty(ids))
             {
@@ -247,12 +246,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                         var obj = _context.OtherServices.Find(Convert.ToInt32(item));
                         if (obj.Image != null)
                         {
-                            string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/otherServices");
-                            string oldFileImage = Path.Combine(uploadsDir, obj.Image);
-                            if (System.IO.File.Exists(oldFileImage))
-                            {
-                                System.IO.File.Delete(oldFileImage);
-                            }
+                            await _awsS3Service.DeleteFileAsync(obj.Image);
                         }
                         _context.OtherServices.Remove(obj);
                         _context.SaveChanges();

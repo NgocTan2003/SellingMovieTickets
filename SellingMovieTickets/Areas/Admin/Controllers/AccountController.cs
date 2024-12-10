@@ -10,6 +10,7 @@ using SellingMovieTickets.Areas.Admin.Models.ViewModels.User;
 using SellingMovieTickets.Models.Entities;
 using SellingMovieTickets.Models.Enum;
 using SellingMovieTickets.Repository;
+using SellingMovieTickets.Services.Interfaces;
 using System.Security.Claims;
 
 namespace SellingMovieTickets.Areas.Admin.Controllers
@@ -21,14 +22,14 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
         private readonly UserManager<AppUserModel> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly DataContext _dataContext;
-        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IAwsS3Service _awsS3Service;
 
-        public AccountController(UserManager<AppUserModel> userManager, RoleManager<IdentityRole> roleManager, DataContext dataContext, IWebHostEnvironment webHostEnvironment)
+        public AccountController(UserManager<AppUserModel> userManager, RoleManager<IdentityRole> roleManager, DataContext dataContext, IAwsS3Service awsS3Service)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _dataContext = dataContext;
-            _webHostEnvironment = webHostEnvironment;
+            _awsS3Service = awsS3Service;
         }
 
         public async Task<IActionResult> Index(string searchText, int pg)
@@ -132,24 +133,19 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
 
                 if (model.User.ImageUpload != null)
                 {
-                    string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/accounts");
-                    string imageName = Guid.NewGuid().ToString() + "_" + model.User.ImageUpload.FileName;
-                    string filePath = Path.Combine(uploadDir, imageName);
-
-                    if (!Directory.Exists(uploadDir))
+                    var resultUpload = await _awsS3Service.UploadFile(model.User.ImageUpload, "account", model.User.ImageUpload.FileName);
+                    if (resultUpload.StatusCode == 200)
                     {
-                        Directory.CreateDirectory(uploadDir);
+                        user.Avatar = resultUpload.PresignedUrl;
                     }
-
-                    using (FileStream fs = new FileStream(filePath, FileMode.Create))
+                    else
                     {
-                        await model.User.ImageUpload.CopyToAsync(fs);
+                        TempData["Error"] = "Lỗi: " + string.Join(", ", resultUpload.Message);
+                        return View(model);
                     }
-                    user.Avatar = imageName;
                 }
 
                 var result = await _userManager.CreateAsync(user, model.User.Password);
-
                 if (result.Succeeded)
                 {
                     var selectedRole = model.Role != null ? model.Role : Role.Customer;
@@ -259,24 +255,25 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                     {
                         if (user.Avatar != null)
                         {
-                            string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/accounts");
-                            string oldFileImage = Path.Combine(uploadsDir, user.Avatar);
-                            if (System.IO.File.Exists(oldFileImage))
+                            var resultDelete = await _awsS3Service.DeleteFileAsync(user.Avatar);
+                            if (resultDelete.StatusCode != 200)
                             {
-                                System.IO.File.Delete(oldFileImage);
+                                TempData["Error"] = "Lỗi: " + string.Join(", ", resultDelete.Message);
+                                return View(model);
                             }
                         }
-
-                        string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/accounts");
-                        string imageName = Guid.NewGuid().ToString() + "_" + model.User.ImageUpload.FileName;
-                        string filePath = Path.Combine(uploadDir, imageName);
-
-                        using (FileStream fs = new FileStream(filePath, FileMode.Create))
+                        var resultCreate = await _awsS3Service.UploadFile(model.User.ImageUpload, "account", model.User.ImageUpload.FileName);
+                        if (resultCreate.StatusCode == 200)
                         {
-                            await model.User.ImageUpload.CopyToAsync(fs);
+                            user.Avatar = resultCreate.PresignedUrl;
                         }
-                        user.Avatar = imageName;
+                        else
+                        {
+                            TempData["Error"] = resultCreate.Message;
+                            return View(model);
+                        }
                     }
+
                     var result = await _userManager.UpdateAsync(user);
 
                     if (result.Succeeded)
@@ -333,35 +330,29 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
         [Route("Delete")]
         public async Task<IActionResult> Delete(string id)
         {
-            if (string.IsNullOrEmpty(id))
-            {
-                return NotFound();
-            }
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
             {
                 return NotFound();
             }
+
             if (user.Avatar != null)
             {
-                string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/accounts");
-                string oldFileImage = Path.Combine(uploadsDir, user.Avatar);
-                if (System.IO.File.Exists(oldFileImage))
+                var resultDelete = await _awsS3Service.DeleteFileAsync(user.Avatar);
+                if (resultDelete.StatusCode != 200)
                 {
-                    System.IO.File.Delete(oldFileImage);
+                    TempData["Error"] = resultDelete.Message;
+                    return RedirectToAction("Index");
                 }
             }
-            var deleteResult = await _userManager.DeleteAsync(user);
-            if (!deleteResult.Succeeded)
-            {
-                return View("Error");
-            }
-            TempData["Success"] = "User đã được xóa thành công";
+            await _userManager.DeleteAsync(user);
+            await _dataContext.SaveChangesAsync();
+            TempData["Success"] = "User xóa thành công. ";
             return RedirectToAction("Index");
         }
 
         [HttpPost]
-        public IActionResult DeleteAll(string ids)
+        public async Task<IActionResult> DeleteAll(string ids)
         {
             if (!string.IsNullOrEmpty(ids))
             {
@@ -373,12 +364,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                         var obj = _dataContext.Users.Find(item);
                         if (obj.Avatar != null)
                         {
-                            string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/accounts");
-                            string oldFileImage = Path.Combine(uploadsDir, obj.Avatar);
-                            if (System.IO.File.Exists(oldFileImage))
-                            {
-                                System.IO.File.Delete(oldFileImage);
-                            }
+                            await _awsS3Service.DeleteFileAsync(obj.Avatar);
                         }
                         _dataContext.Users.Remove(obj);
                         _dataContext.SaveChanges();

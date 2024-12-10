@@ -149,7 +149,7 @@
                                 <label for="ImageUpload">Hình ảnh</label>
                                 <input asp-for="ImageUpload" class="form-control-file" title="Tải lên hình ảnh" />
                                 <span asp-validation-for="ImageUpload" class="text-danger"></span>
-                                <img asp-for="Image" id="imageFirst" src="~/media/movies/@Model.Image" class="style_imageAdmin">
+                                <img asp-for="Image" id="imageFirst" src="@Model.Image" class="style_imageAdmin">
                                 <img id="imgpreview" class="pt-2" class="style_imageAdmin" />
                             </div>
                             <div class="row align-items-center">

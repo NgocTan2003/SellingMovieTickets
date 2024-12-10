@@ -7,6 +7,7 @@ using SellingMovieTickets.Areas.Admin.Models.ViewModels.Movie;
 using SellingMovieTickets.Models.Entities;
 using SellingMovieTickets.Models.Enum;
 using SellingMovieTickets.Repository;
+using SellingMovieTickets.Services.Interfaces;
 using System.Security.Claims;
 
 namespace SellingMovieTickets.Areas.Admin.Controllers
@@ -16,13 +17,14 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
     public class MovieController : Controller
     {
         private readonly DataContext _context;
-        private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IMapper _mapper;
-        public MovieController(DataContext context, IWebHostEnvironment webHostEnvironment, IMapper mapper)
+        private readonly IAwsS3Service _awsS3Service;
+
+        public MovieController(DataContext context, IMapper mapper, IAwsS3Service awsS3Service)
         {
             _context = context;
-            _webHostEnvironment = webHostEnvironment;
             _mapper = mapper;
+            _awsS3Service = awsS3Service;
         }
 
         public async Task<IActionResult> Index(string searchText, int pg)
@@ -136,18 +138,15 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                 string imageName = null;
                 if (movie.ImageUpload != null)
                 {
-                    string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/movies");
-                    imageName = Guid.NewGuid().ToString() + "_" + movie.ImageUpload.FileName;
-                    string filePath = Path.Combine(uploadDir, imageName);
-
-                    if (!Directory.Exists(uploadDir))
+                    var result = await _awsS3Service.UploadFile(movie.ImageUpload, "movie", movie.ImageUpload.FileName);
+                    if (result.StatusCode == 200)
                     {
-                        Directory.CreateDirectory(uploadDir);
+                        imageName = result.PresignedUrl;
                     }
-
-                    using (FileStream fs = new FileStream(filePath, FileMode.Create))
+                    else
                     {
-                        await movie.ImageUpload.CopyToAsync(fs);
+                        TempData["Error"] = "Lỗi: " + string.Join(", ", result.Message);
+                        return View(movie);
                     }
                 }
 
@@ -311,25 +310,25 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
 
                 if (movie.ImageUpload != null)
                 {
-                    if (movie.Image != null)
+                    if (existingMovie.Image != null)
                     {
-                        string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/movies");
-                        string oldFileImage = Path.Combine(uploadsDir, existingMovie.Image);
-                        if (System.IO.File.Exists(oldFileImage))
+                        var resultDelete = await _awsS3Service.DeleteFileAsync(existingMovie.Image);
+                        if (resultDelete.StatusCode != 200)
                         {
-                            System.IO.File.Delete(oldFileImage);
+                            TempData["Error"] = "Lỗi: " + string.Join(", ", resultDelete.Message);
+                            return View(movie);
                         }
                     }
-
-                    string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/movies");
-                    string imageName = Guid.NewGuid().ToString() + "_" + movie.ImageUpload.FileName;
-                    string filePath = Path.Combine(uploadDir, imageName);
-
-                    using (FileStream fs = new FileStream(filePath, FileMode.Create))
+                    var resultCreate = await _awsS3Service.UploadFile(movie.ImageUpload, "movie", movie.ImageUpload.FileName);
+                    if (resultCreate.StatusCode == 200)
                     {
-                        await movie.ImageUpload.CopyToAsync(fs);
+                        existingMovie.Image = resultCreate.PresignedUrl;
                     }
-                    existingMovie.Image = imageName;
+                    else
+                    {
+                        TempData["Error"] = resultCreate.Message;
+                        return View(movie);
+                    }
                 }
 
                 // Xóa các thể loại cũ
@@ -349,7 +348,6 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
 
                 _context.Update(existingMovie);
                 await _context.SaveChangesAsync();
-
                 TempData["Success"] = "Cập nhật phim thành công";
                 return RedirectToAction("Index");
             }
@@ -366,11 +364,11 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
             MovieModel movie = await _context.Movies.FindAsync(Id);
             if (movie.Image != null)
             {
-                string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/movies");
-                string oldFileImage = Path.Combine(uploadsDir, movie.Image);
-                if (System.IO.File.Exists(oldFileImage))
+                var resultDelete = await _awsS3Service.DeleteFileAsync(movie.Image);
+                if (resultDelete.StatusCode != 200)
                 {
-                    System.IO.File.Delete(oldFileImage);
+                    TempData["Error"] = resultDelete.Message;
+                    return RedirectToAction("Index");
                 }
             }
             _context.Movies.Remove(movie);
@@ -395,7 +393,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult DeleteAll(string ids)
+        public async Task<IActionResult> DeleteAll(string ids)
         {
             if (!string.IsNullOrEmpty(ids))
             {
@@ -407,12 +405,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                         var obj = _context.Movies.Find(Convert.ToInt32(item));
                         if (obj.Image != null)
                         {
-                            string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/movies");
-                            string oldFileImage = Path.Combine(uploadsDir, obj.Image);
-                            if (System.IO.File.Exists(oldFileImage))
-                            {
-                                System.IO.File.Delete(oldFileImage);
-                            }
+                            await _awsS3Service.DeleteFileAsync(obj.Image);
                         }
                         _context.Movies.Remove(obj);
                         _context.SaveChanges();

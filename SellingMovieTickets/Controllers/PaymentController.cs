@@ -374,6 +374,5 @@ namespace SellingMovieTickets.Controllers
             return message;
         }
 
-
     }
 }

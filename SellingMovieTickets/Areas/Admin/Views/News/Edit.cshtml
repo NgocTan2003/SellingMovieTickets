@@ -1,4 +1,6 @@
 ﻿@using SellingMovieTickets.Models.Entities
+<link href="~/assetsadmin/styles/image_index.css" rel="stylesheet" />
+
 @model NewsModel
 @{
     ViewData["Title"] = "Update News";
@@ -71,8 +73,11 @@
                                 <label for="ImageUpload">Hình ảnh</label>
                                 <input asp-for="ImageUpload" class="form-control-file" title="Tải lên hình ảnh" />
                                 <span asp-validation-for="ImageUpload" class="text-danger"></span>
-                                <img asp-for="Image" id="imageFirst" src="~/media/news/@Model.Image" width="160" height="140" style="margin-top: 4px">
+                                @* <img asp-for="Image" id="imageFirst" src="@Model.Image" width="160" height="140" style="margin-top: 4px">
                                 <img id="imgpreview" class="pt-2" />
+ *@
+                                <img id="imageFirst" src="@Model.Image" class="style_imageAdmin">
+                                <img id="imgpreview" class="pt-2 style_imageAdmin" />
                             </div>
                             <div class="form-group">
                                 <label for="SeoDescription">SeoDescription</label>
@@ -111,26 +116,29 @@
         </div>
 </section>
 
-@section Scripts {
-    <script>
-        CKEDITOR.replace('Detail');
-        $("#ImageUpload").change(function () {
-            readURL(this);
-        })
+<script>
+    CKEDITOR.replace('Detail');
+    $("#ImageUpload").change(function () {
+        readURL(this);
+    })
 
-        $(document).ready(function () {
-            $('#datePicker').change(function () {
-                var selectedDate = this.value;
+    $(document).ready(function () {
+        $('#datePicker').change(function () {
+            var selectedDate = this.value;
 
-                if (selectedDate) {
-                    var dateParts = selectedDate.split("-");
-                    var formattedDate = dateParts[2] + "/" + dateParts[1] + "/" + dateParts[0];
-                    $('#selectedDateDisplay').val(formattedDate);
-                }
-            });
+            if (selectedDate) {
+                var dateParts = selectedDate.split("-");
+                var formattedDate = dateParts[2] + "/" + dateParts[1] + "/" + dateParts[0];
+                $('#selectedDateDisplay').val(formattedDate);
+            }
         });
-    </script>
-}
+    });
+
+    $("#ImageUpload").change(function () {
+        $("#imageFirst").hide();
+        readURL(this);
+    })
+</script>
 
 @if (TempData["Error"] != null)
 {

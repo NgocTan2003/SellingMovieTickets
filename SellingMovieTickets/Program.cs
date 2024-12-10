@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Amazon.S3;
+using AutoMapper;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
@@ -29,13 +30,12 @@ builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
-
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
 
-
 // add email sender
 builder.Services.AddTransient<IEmailSender, EmailSender>();
+builder.Services.AddTransient<IAwsS3Service, AwsS3Service>();
 
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 
@@ -67,19 +67,20 @@ builder.Services.Configure<IdentityOptions>(options =>
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddSingleton<IVnPayService, VNPayService>();
+builder.Services.AddTransient<IVnPayService, VNPayService>();
+builder.Services.AddTransient<IAwsS3Service, AwsS3Service>();
 
 // Configuration Login Google Account
 builder.Services.AddAuthentication(options =>
 {
-    //options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    //options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    //options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 }).AddCookie().AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
 {
     options.ClientId = builder.Configuration.GetSection("GoogleKeys:ClientId").Value;
     options.ClientSecret = builder.Configuration.GetSection("GoogleKeys:ClientSecret").Value;
 });
+
+builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+builder.Services.AddAWSService<IAmazonS3>();
 
 var app = builder.Build();
 

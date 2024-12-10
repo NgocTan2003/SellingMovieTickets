@@ -95,7 +95,7 @@
                                 <td><input type="checkbox" class="cbkItem" value="@item.Id" /></td>
                                 <td>@i</td>
                                 <td>@item.Name</td>
-                                <td><img src="~/media/movies/@item.Image" class="productImageIndex"></td>
+                                <td><img src="@item.Image" class="productImageIndex"></td>
                                 <td>@item.ReleaseDate.ToString("dd/MM/yyyy")</td>
                                 <td>@item.Duration phút</td>
                                 <td>@item.Genres</td>
@@ -138,11 +138,7 @@
                 if (this.checked) {
                     $(this).attr('selected', 'checked');
                     var _id = $(this).val();
-                    if (i === 0) {
-                        str += _id;
-                    } else {
-                        str += ',' + _id;
-                    }
+                    str += i === 0 ? _id : ',' + _id;
                     i++;
                 } else {
                     $(this).attr('selected', '');
@@ -200,12 +196,8 @@
             var checkbox = $(this).parents('.card-body').find('tr td input.cbkItem');
             checkbox.each(function () {
                 this.checked = checkStatus;
-                if (this.checked) {
-                    checkbox.attr('selected', 'checked');
-                } else {
-                    checkbox.attr('selected', '');
-                }
-            })
+                $(this).attr('selected', this.checked ? 'checked' : '');
+            });
         });
 
         $('.toggle-status').change(function () {
@@ -238,5 +230,5 @@
                 }
             });
         });
-    }
+    });
 </script>

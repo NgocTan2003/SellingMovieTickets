@@ -6,7 +6,7 @@
             @if (User.Identity?.IsAuthenticated ?? false)
             {
                 var avatar = User.FindFirst("Avatar")?.Value != null
-                ? $"/media/accounts/{User.FindFirst("Avatar")?.Value}" : "";
+                ? $"{User.FindFirst("Avatar")?.Value}" : "";
                 <img src="@avatar" class="img-circle elevation-2" alt="User Image">
             }
         </div>

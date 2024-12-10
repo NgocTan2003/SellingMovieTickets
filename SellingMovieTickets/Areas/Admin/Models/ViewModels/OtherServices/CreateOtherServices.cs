@@ -17,7 +17,7 @@ namespace SellingMovieTickets.Areas.Admin.Models.ViewModels.OtherServices
         public string Description { get; set; }
         [NotMapped]
         [FileExtension]
-        public IFormFile ImageUpload { get; set; }
+        public IFormFile? ImageUpload { get; set; }
         public Status Status { get; set; }
     }
 }

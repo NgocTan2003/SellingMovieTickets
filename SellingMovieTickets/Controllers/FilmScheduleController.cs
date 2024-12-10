@@ -24,7 +24,6 @@ namespace SellingMovieTickets.Controllers
             return View();
         }
 
-
         [HttpGet("GetShowTimes")]
         public async Task<IActionResult> GetShowTimes()
         {

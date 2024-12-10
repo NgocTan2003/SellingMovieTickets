@@ -94,7 +94,7 @@
                                 <td>@i</td>
                                 <td>@item.Title</td>
                                 <td>@Html.Raw(item.Description)</td>
-                                <td><img src="~/media/advs/@item.Image" class="productImageIndex"></td>
+                                <td><img src="@item.Image" class="productImageIndex"></td>
                                 <td>@item.Link</td>
                                 <td>
                                     <input type="checkbox" class="toggle-status" data-id="@item.Id" @(item.Status == Status.Show ? "checked" : "") />

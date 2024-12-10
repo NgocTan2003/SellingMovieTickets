@@ -94,7 +94,7 @@
                                 <td>@i</td>
                                 <td>@item.Title</td>
                                 <td>@item.Description</td>
-                                <td><img src="~/media/news/@item.Image" class="productImageIndex"></td>
+                                <td><img src="@item.Image" class="productImageIndex"></td>
                                 <td>@item.SeoTitle</td>
                                 <td>
                                     <input type="checkbox" class="toggle-status" data-id="@item.Id" @(item.Status == Status.Show ? "checked" : "") />

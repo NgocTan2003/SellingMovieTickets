@@ -166,6 +166,10 @@
 .seat-selected {
     background-color: #3b82f6 !important;
 }
+/* Màu vàng cho ghế đang được giữ */
+.seat-held {
+    background-color: yellow !important;
+}
 /* Màu xám cho ghế thường */
 .seat-regular {
     background-color: #3a3b3c;

@@ -94,7 +94,7 @@
                                 <td>@userVM.UserName</td>
                                 <td>@userVM.FullName</td>
                                 <td>
-                                    <img src="@(string.IsNullOrEmpty(userVM.Avatar) ? "/media/accounts/avatar_default.jpg" : $"/media/accounts/{userVM.Avatar}")"
+                                    <img src="@(string.IsNullOrEmpty(userVM.Avatar) ? "/media/accounts/avatar_default.jpg" : userVM.Avatar)"
                                          class="productImageIndex" alt="User Avatar" />
                                 </td>
                                 <td>@userVM.Email</td>

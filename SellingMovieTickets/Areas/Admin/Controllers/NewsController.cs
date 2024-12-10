@@ -10,6 +10,7 @@ using SellingMovieTickets.Areas.Admin.Models.ViewModels.News;
 using SellingMovieTickets.Models.Entities;
 using SellingMovieTickets.Models.Enum;
 using SellingMovieTickets.Repository;
+using SellingMovieTickets.Services.Interfaces;
 using System.Security.Claims;
 
 namespace SellingMovieTickets.Areas.Admin.Controllers
@@ -21,12 +22,14 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
         private readonly DataContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IMapper _mapper;
+        private readonly IAwsS3Service _awsS3Service;
 
-        public NewsController(DataContext context, IWebHostEnvironment webHostEnvironment, IMapper mapper)
+        public NewsController(DataContext context, IWebHostEnvironment webHostEnvironment, IAwsS3Service awsS3Service, IMapper mapper)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _mapper = mapper;
+            _awsS3Service = awsS3Service;
         }
 
         public async Task<IActionResult> Index(string searchText, int pg)
@@ -82,20 +85,16 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
 
                 if (news.ImageUpload != null)
                 {
-                    string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/news");
-                    string imageName = Guid.NewGuid().ToString() + "_" + news.ImageUpload.FileName;
-                    string filePath = Path.Combine(uploadDir, imageName);
-
-                    if (!Directory.Exists(uploadDir))
+                    var result = await _awsS3Service.UploadFile(news.ImageUpload, "new", news.ImageUpload.FileName);
+                    if (result.StatusCode == 200)
                     {
-                        Directory.CreateDirectory(uploadDir);
+                        news.Image = result.PresignedUrl;
                     }
-
-                    using (FileStream fs = new FileStream(filePath, FileMode.Create))
+                    else
                     {
-                        await news.ImageUpload.CopyToAsync(fs);
+                        TempData["Error"] = "Lỗi: " + string.Join(", ", result.Message);
+                        return View(news);
                     }
-                    news.Image = imageName;
                 }
 
                 news.CreateDate = DateTime.Now;
@@ -166,31 +165,29 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
 
                 if (news.ImageUpload != null)
                 {
-                    if (existingNews.Image != null)
+                    if (news.Image != null)
                     {
-                        // xóa ảnh cũ đi trc khi update ảnh ms
-                        string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/news");
-                        string oldFileImage = Path.Combine(uploadsDir, existingNews.Image);
-                        if (System.IO.File.Exists(oldFileImage))
+                        var resultDelete = await _awsS3Service.DeleteFileAsync(existingNews.Image);
+                        if (resultDelete.StatusCode != 200)
                         {
-                            System.IO.File.Delete(oldFileImage);
+                            TempData["Error"] = "Lỗi: " + string.Join(", ", resultDelete.Message);
+                            return View(news);
                         }
                     }
-
-                    string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/news");
-                    string imageName = Guid.NewGuid().ToString() + "_" + news.ImageUpload.FileName;
-                    string filePath = Path.Combine(uploadDir, imageName);
-
-                    using (FileStream fs = new FileStream(filePath, FileMode.Create))
+                    var resultCreate = await _awsS3Service.UploadFile(news.ImageUpload, "new", news.ImageUpload.FileName);
+                    if (resultCreate.StatusCode == 200)
                     {
-                        await news.ImageUpload.CopyToAsync(fs);
+                        existingNews.Image = resultCreate.PresignedUrl;
                     }
-                    existingNews.Image = imageName;
+                    else
+                    {
+                        TempData["Error"] = resultCreate.Message;
+                        return View(news);
+                    }
                 }
 
                 _context.Update(existingNews);
                 await _context.SaveChangesAsync();
-
                 TempData["Success"] = "Cập nhật tin tức thành công";
                 return RedirectToAction("Index");
             }
@@ -207,11 +204,12 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
             NewsModel news = await _context.News.FindAsync(Id);
             if (news.Image != null)
             {
-                string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/news");
-                string oldFileImage = Path.Combine(uploadsDir, news.Image);
-                if (System.IO.File.Exists(oldFileImage))
+                var resultDelete = await _awsS3Service.DeleteFileAsync(news.Image);
+                if (resultDelete.StatusCode != 200)
                 {
-                    System.IO.File.Delete(oldFileImage);
+
+                    TempData["Error"] = resultDelete.Message;
+                    return RedirectToAction("Index");
                 }
             }
             _context.News.Remove(news);
@@ -236,7 +234,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult DeleteAll(string ids)
+        public async Task<IActionResult> DeleteAll(string ids)
         {
             if (!string.IsNullOrEmpty(ids))
             {
@@ -248,12 +246,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                         var obj = _context.News.Find(Convert.ToInt32(item));
                         if (obj.Image != null)
                         {
-                            string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/news");
-                            string oldFileImage = Path.Combine(uploadsDir, obj.Image);
-                            if (System.IO.File.Exists(oldFileImage))
-                            {
-                                System.IO.File.Delete(oldFileImage);
-                            }
+                            await _awsS3Service.DeleteFileAsync(obj.Image);
                         }
                         _context.News.Remove(obj);
                         _context.SaveChanges();

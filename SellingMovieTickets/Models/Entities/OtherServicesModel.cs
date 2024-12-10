@@ -18,10 +18,9 @@ namespace SellingMovieTickets.Models.Entities
         public decimal Price { get; set; }
         [Required(ErrorMessage = "Yêu cầu nhập mô tả")]
         public string Description { get; set; }
-        public string Image { get; set; }
+        public string? Image { get; set; }
         [NotMapped]
         [FileExtension]
-        public IFormFile ImageUpload { get; set; }
         public Status Status { get; set; }
 
         public string? CreateBy { get; set; }

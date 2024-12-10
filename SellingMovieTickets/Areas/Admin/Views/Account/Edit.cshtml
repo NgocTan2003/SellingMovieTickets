@@ -90,7 +90,7 @@
                         <input asp-for="User.ImageUpload" class="form-control-file" title="Tải lên hình ảnh" />
                         <span asp-validation-for="User.ImageUpload" class="text-danger"></span>
                         <img id="imageFirst" class="style_imageAdmin"
-                             src="@(string.IsNullOrEmpty(Model.User.Avatar) ? "/media/accounts/avatar_default.jpg" : $"/media/accounts/{Model.User.Avatar}")">
+                             src="@(string.IsNullOrEmpty(Model.User.Avatar) ? "/media/accounts/avatar_default.jpg" : Model.User.Avatar)">
                         <img id="imgpreview" class="pt-2 style_imageAdmin" />
                     </div>
 
