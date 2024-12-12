@@ -37,7 +37,7 @@
 
 @* Movie CommingSoon *@
 <div class="row movieNowShowing">
-    <div class="col-md-9">  
+    <div class="col-md-9">
         <div class="d-flex justify-content-between align-items-center">
             <div class="section-title d-flex align-items-center">
                 <div class="rounded-full bg-red-500 w-4 h-4 mr-1"></div>Phim sắp chiếu
@@ -50,14 +50,15 @@
     </div>
 </div>
 
- @section Scripts {
+@section Scripts {
+    @* <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script> *@
+
     <script type="text/javascript">
         $(document).ready(function () {
             $.ajax({
                 url: '@Url.Action("MenuSlider", "Menu")',
                 type: 'GET',
                 success: function (data) {
-                    console.log(data)
                     $('.Slider').prepend(data);
                 },
                 error: function () {

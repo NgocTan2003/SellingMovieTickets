@@ -6,7 +6,7 @@
     @foreach (var item in Model)
     {
         <div class="col-md-3 col-6 movie-item">
-            <img src="~/media/movies/@item.Image" alt="Movie Image">
+            <img src="@item.Image" alt="Movie Image">
             <div class="movie-info">
                 <div class="box_account ">
                     <p>@item.Genres</p>

@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using SellingMovieTickets.Areas.Admin.Models.ViewModels.Movie;
 using SellingMovieTickets.Areas.Admin.Models.ViewModels.Room;
+using SellingMovieTickets.Areas.Admin.Models.ViewModels.Seat;
 using SellingMovieTickets.Models.Entities;
 using SellingMovieTickets.Models.Enum;
 using SellingMovieTickets.Models.ViewModels.CinemaShowTimes;
@@ -13,10 +15,12 @@ namespace SellingMovieTickets.Controllers
     public class FilmScheduleController : Controller
     {
         private DataContext _context;
+        private readonly IHubContext<SeatHub> _hubContext;
 
-        public FilmScheduleController(DataContext context)
+        public FilmScheduleController(DataContext context, IHubContext<SeatHub> hubContext)
         {
             _context = context;
+            _hubContext = hubContext;
         }
 
         public IActionResult Index()
@@ -93,10 +97,26 @@ namespace SellingMovieTickets.Controllers
             };
         }
 
+        private static List<SeatViewModel> MapToSeatViewModel(List<SeatModel> seats)
+        {
+            return seats.Select(seat => new SeatViewModel
+            {
+                Id = seat.Id,
+                SeatNumber = seat.SeatNumber,
+                IsAvailable = seat.IsAvailable,
+                IsHeld = seat.IsHeld,
+                HoldUntil = seat.HoldUntil,
+                HeldByUserId = seat.HeldByUserId
+            }).ToList();
+        }
+
         public async Task<IActionResult> Detail(int id, string time)
         {
             var showTimes = await _context.CinemaShowTimes
                 .Include(x => x.Room)
+                .Include(x => x.Movie)
+                .ThenInclude(m => m.MovieCategoryMappings)
+                .ThenInclude(mcm => mcm.MovieCategory)
                 .Where(st => st.Id == id)
                 .Select(st => new
                 {
@@ -106,17 +126,20 @@ namespace SellingMovieTickets.Controllers
                     Genres = string.Join(", ", st.Movie.MovieCategoryMappings.Select(mcm => mcm.MovieCategory.CategoryName))
                 }).FirstOrDefaultAsync();
 
-            var selectedSeats = await _context.Seats
-                .Where(seat => seat.CinemaShowTimeId == id && !seat.IsAvailable)
-                .Select(seat => seat.SeatNumber)
-                .ToListAsync();
+            if (showTimes == null)
+            {
+                return NotFound();
+            }
+            var seats = await _context.Seats.Where(seat => seat.CinemaShowTimeId == id).ToListAsync();
 
-            var movieST = new CinemaShowTimeVM();
-            movieST.Id = id;
-            movieST.StartShowTime = showTimes.StartShowTime;
-            movieST.MovieVM = MapToMovieViewModel(showTimes.Movie, showTimes.Genres);
-            movieST.RoomVM = MapToRoomViewModel(showTimes.Room);
-            movieST.SelectedSeats = selectedSeats;
+            var movieST = new CinemaShowTimeVM
+            {
+                Id = id,
+                StartShowTime = showTimes.StartShowTime,
+                MovieVM = MapToMovieViewModel(showTimes.Movie, showTimes.Genres),
+                RoomVM = MapToRoomViewModel(showTimes.Room),
+                Seats = MapToSeatViewModel(seats)
+            };
 
             return View(movieST);
         }

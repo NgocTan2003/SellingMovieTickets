@@ -36,18 +36,6 @@ namespace SellingMovieTickets.Controllers
         }
 
         [Authorize]
-        public IActionResult Success()
-        {
-            return View();
-        }
-
-        [Authorize]
-        public IActionResult Fail()
-        {
-            return View();
-        }
-
-        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Checkout([FromBody] PaymentInfo paymentInfo)
         {
@@ -55,98 +43,107 @@ namespace SellingMovieTickets.Controllers
             {
                 try
                 {
-                    var userName = User.FindFirstValue(ClaimUserLogin.FullName);
-                    var userEmail = User.FindFirstValue(ClaimUserLogin.Email);
-
-                    if (paymentInfo.PaymentType == PaymentType.VNPAY)
+                    var result = await CheckAvailableSeatsAsync(paymentInfo.OrderSeats);
+                    if (result)
                     {
-                        var userId = User.FindFirstValue(ClaimUserLogin.Id);
-                        var customerManagement = await _context.CustomerManagements.Where(x => x.UserId == userId).FirstOrDefaultAsync();
-                        var showTime = await _context.CinemaShowTimes.Where(x => x.Id == paymentInfo.ShowTimeId).Include(x => x.Movie).Include(x => x.Room).FirstOrDefaultAsync();
-                        var seatNames = string.Join(", ", paymentInfo.OrderSeats.Select(seatInfo => seatInfo.SeatName));
+                        var userName = User.FindFirstValue(ClaimUserLogin.FullName);
+                        var userEmail = User.FindFirstValue(ClaimUserLogin.Email);
 
-                        // tạo ticket
-                        var ticket = new TicketModel
+                        if (paymentInfo.PaymentType == PaymentType.VNPAY)
                         {
-                            NameMovie = showTime.Movie.Name,
-                            TicketCode = Guid.NewGuid().ToString(),
-                            StartShowTime = showTime.StartShowTime,
-                            ConcessionAmount = paymentInfo.ConcessionAmount,
-                            DiscountAmount = paymentInfo.DiscountAmount,
-                            TotalAmount = paymentInfo.PaymentAmount,
-                            PaymentAmount = paymentInfo.PaymentAmount,
-                            SeatNames = seatNames,
-                            RoomNumber = showTime.Room.RoomNumber,
-                            CreateDate = DateTime.Now,
-                        };
-                        await _context.Tickets.AddAsync(ticket);
-                        await _context.SaveChangesAsync();
+                            var userId = User.FindFirstValue(ClaimUserLogin.Id);
+                            var customerManagement = await _context.CustomerManagements.Where(x => x.UserId == userId).FirstOrDefaultAsync();
+                            var showTime = await _context.CinemaShowTimes.Where(x => x.Id == paymentInfo.ShowTimeId).Include(x => x.Movie).Include(x => x.Room).FirstOrDefaultAsync();
+                            var seatNames = string.Join(", ", paymentInfo.OrderSeats.Select(seatInfo => seatInfo.SeatName));
 
-                        // tạo order
-                        var order = new OrderModel();
-                        order.OrderCode = Guid.NewGuid().ToString();
-                        order.PaymentType = paymentInfo.PaymentType;
-                        order.NumberOfTickets = paymentInfo.OrderSeats.Count();
-                        order.TicketCode = ticket.TicketCode;
-                        order.TotalAmount = paymentInfo.PaymentAmount;
-                        order.StatusOrder = "";
-                        order.TicketId = ticket.Id;
-                        order.CinemaShowTimeId = paymentInfo.ShowTimeId;
-                        order.CustomerManagementId = customerManagement.Id;
-                        if (paymentInfo.PromotionId != null)
-                        {
-                            order.PromotionId = paymentInfo.PromotionId;
-                        }
-                        order.CreateDate = DateTime.Now;
-                        await _context.Orders.AddAsync(order);
-                        await _context.SaveChangesAsync();
-
-                        var vnPayModel = new VnPaymentRequestModel
-                        {
-                            Amount = paymentInfo.PaymentAmount * 1000,
-                            CreatedDate = DateTime.Now,
-                            Description = $"{userName}",
-                            FullName = userName,
-                            OrderId = order.OrderCode
-                        };
-
-                        // tạo orderDetail
-                        var orderDetails = paymentInfo.OrderSeats.Select(seatInfo => new OrderDetailModel
-                        {
-                            OrderId = order.Id,
-                            OrderCode = order.OrderCode,
-                            SeatNumber = seatInfo.SeatName,
-                            Price = seatInfo.Price,
-                            CreateDate = DateTime.Now
-                        }).ToList();
-                        await _context.OrderDetails.AddRangeAsync(orderDetails);
-                        await _context.SaveChangesAsync();
-
-                        if (paymentInfo.OtherServices != null)
-                        {
-                            var orderServiceOrders = new List<OtherServicesOrderModel>();
-                            foreach (var service in paymentInfo.OtherServices)
+                            // tạo ticket
+                            var ticket = new TicketModel
                             {
-                                var otherService = await _context.OtherServices.FindAsync(service.Id);
-                                if (otherService != null)
-                                {
-                                    var totalAmount = otherService.Price * service.Quantity;
-                                    orderServiceOrders.Add(new OtherServicesOrderModel
-                                    {
-                                        OrderId = order.Id,
-                                        OtherServicesId = service.Id,
-                                        Quantity = service.Quantity,
-                                        TotalAmount = totalAmount,
-                                        CreateDate = DateTime.Now
-                                    });
-                                }
-                            }
-                            await _context.OtherServicesOrders.AddRangeAsync(orderServiceOrders);
+                                NameMovie = showTime.Movie.Name,
+                                TicketCode = Guid.NewGuid().ToString(),
+                                StartShowTime = showTime.StartShowTime,
+                                ConcessionAmount = paymentInfo.ConcessionAmount,
+                                DiscountAmount = paymentInfo.DiscountAmount,
+                                TotalAmount = paymentInfo.PaymentAmount,
+                                PaymentAmount = paymentInfo.PaymentAmount,
+                                SeatNames = seatNames,
+                                RoomNumber = showTime.Room.RoomNumber,
+                                CreateDate = DateTime.Now,
+                            };
+                            await _context.Tickets.AddAsync(ticket);
                             await _context.SaveChangesAsync();
-                        }
 
-                        var paymentUrl = _vnPayService.CreatePaymentUrl(HttpContext, vnPayModel);
-                        return Json(new { redirectUrl = paymentUrl });
+                            // tạo order
+                            var order = new OrderModel();
+                            order.OrderCode = Guid.NewGuid().ToString();
+                            order.PaymentType = paymentInfo.PaymentType;
+                            order.NumberOfTickets = paymentInfo.OrderSeats.Count();
+                            order.TicketCode = ticket.TicketCode;
+                            order.TotalAmount = paymentInfo.PaymentAmount;
+                            order.StatusOrder = "";
+                            order.TicketId = ticket.Id;
+                            order.CinemaShowTimeId = paymentInfo.ShowTimeId;
+                            order.CustomerManagementId = customerManagement.Id;
+                            if (paymentInfo.PromotionId != null)
+                            {
+                                order.PromotionId = paymentInfo.PromotionId;
+                            }
+                            order.CreateDate = DateTime.Now;
+                            await _context.Orders.AddAsync(order);
+                            await _context.SaveChangesAsync();
+
+                            var vnPayModel = new VnPaymentRequestModel
+                            {
+                                Amount = paymentInfo.PaymentAmount * 1000,
+                                CreatedDate = DateTime.Now,
+                                Description = $"{userName}",
+                                FullName = userName,
+                                OrderId = order.OrderCode
+                            };
+
+                            // tạo orderDetail
+                            var orderDetails = paymentInfo.OrderSeats.Select(seatInfo => new OrderDetailModel
+                            {
+                                OrderId = order.Id,
+                                OrderCode = order.OrderCode,
+                                SeatNumber = seatInfo.SeatName,
+                                Price = seatInfo.Price,
+                                CreateDate = DateTime.Now
+                            }).ToList();
+                            await _context.OrderDetails.AddRangeAsync(orderDetails);
+                            await _context.SaveChangesAsync();
+
+                            if (paymentInfo.OtherServices != null)
+                            {
+                                var orderServiceOrders = new List<OtherServicesOrderModel>();
+                                foreach (var service in paymentInfo.OtherServices)
+                                {
+                                    var otherService = await _context.OtherServices.FindAsync(service.Id);
+                                    if (otherService != null)
+                                    {
+                                        var totalAmount = otherService.Price * service.Quantity;
+                                        orderServiceOrders.Add(new OtherServicesOrderModel
+                                        {
+                                            OrderId = order.Id,
+                                            OtherServicesId = service.Id,
+                                            Quantity = service.Quantity,
+                                            TotalAmount = totalAmount,
+                                            CreateDate = DateTime.Now
+                                        });
+                                    }
+                                }
+                                await _context.OtherServicesOrders.AddRangeAsync(orderServiceOrders);
+                                await _context.SaveChangesAsync();
+                            }
+
+                            var paymentUrl = _vnPayService.CreatePaymentUrl(HttpContext, vnPayModel);
+                            return Json(new { redirectUrl = paymentUrl, status = "Success" });
+                        }
+                    }
+                    else
+                    {
+                        var responseUrl = @Url.Action("Index", "Home");
+                        return Json(new { redirectUrl = responseUrl, status = "Fail" });
                     }
                 }
                 catch (Exception ex)
@@ -164,7 +161,7 @@ namespace SellingMovieTickets.Controllers
             if (response == null || response.VnPayResponseCode != "00")
             {
                 TempData["Error"] = $"Lỗi thanh toán VNPay: {response.VnPayResponseCode}";
-                return RedirectToAction("Fail");
+                return RedirectToAction("Index", "Home");
             }
 
             try
@@ -177,7 +174,7 @@ namespace SellingMovieTickets.Controllers
                 if (order == null)
                 {
                     TempData["Error"] = "Không tìm thấy thông tin đơn hàng.";
-                    return RedirectToAction("Fail");
+                    return RedirectToAction("Index", "Home");
                 }
 
                 var ticket = order.Ticket;
@@ -227,16 +224,14 @@ namespace SellingMovieTickets.Controllers
                 _context.SaveChanges();
 
                 TempData["Success"] = $"Thanh toán VNPay thành công.";
-                return RedirectToAction("Success");
+                return RedirectToAction("Index", "Home");
             }
             catch (Exception ex)
             {
                 TempData["Error"] = "Có lỗi xảy ra trong quá trình xử lý sau thanh toán.";
-                return RedirectToAction("Fail");
+                Console.WriteLine(ex.ToString());
+                return RedirectToAction("Index", "Home");
             }
-
-            TempData["Success"] = $"Thanh toán VNPay thành công.";
-            return RedirectToAction("Success");
         }
 
         private string GenerateTicketEmailContent(TicketModel ticket, DateTime paymentDate)
@@ -374,5 +369,11 @@ namespace SellingMovieTickets.Controllers
             return message;
         }
 
+        private async Task<bool> CheckAvailableSeatsAsync(List<InforSeat> seats)
+        {
+            var seatIds = seats.Select(s => s.Id).ToList();
+            var unavailableSeats = await _context.Seats.Where(s => seatIds.Contains(s.Id) && !s.IsAvailable).AnyAsync();  
+            return !unavailableSeats;  
+        }
     }
 }

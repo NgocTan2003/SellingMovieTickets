@@ -73,7 +73,7 @@ namespace SellingMovieTickets.Controllers
                     var authProperties = new AuthenticationProperties
                     {
                         IsPersistent = true, // Cookie tồn tại sau khi đóng trình duyệt
-                        ExpiresUtc = DateTimeOffset.UtcNow.AddHours(1)
+                        ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(60)
                     };
                     await _signInManager.SignInWithClaimsAsync(findUserName, authProperties, claims);
                     await SendSuccessEmail(findUserName.Email, "Đăng nhập thành công", "Bạn vừa đăng nhập vào UmiCinema, chúc bạn có trải nghiệm thú vị nhé.");
@@ -95,7 +95,7 @@ namespace SellingMovieTickets.Controllers
             }
         }
 
-        public async Task LoginWithGoole()
+        public async Task LoginWithGoogle()
         {
             await HttpContext.ChallengeAsync(GoogleDefaults.AuthenticationScheme,
                 new AuthenticationProperties
@@ -217,9 +217,8 @@ namespace SellingMovieTickets.Controllers
             var authProperties = new AuthenticationProperties
             {
                 IsPersistent = true,
-                ExpiresUtc = DateTimeOffset.UtcNow.AddHours(1)
+                ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(60)
             };
-
             await _signInManager.SignInWithClaimsAsync(user, authProperties, claimsSignIn);
         }
 

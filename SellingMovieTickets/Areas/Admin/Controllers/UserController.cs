@@ -69,7 +69,7 @@ namespace SellingMovieTickets.Areas.Admin.Controllers
                         var authProperties = new AuthenticationProperties
                         {
                             IsPersistent = true, // Cookie tồn tại sau khi đóng trình duyệt
-                            ExpiresUtc = DateTimeOffset.UtcNow.AddHours(1)
+                            ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(60)
                         };
                         await _signInManager.SignInWithClaimsAsync(user, authProperties, claims);
 

@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SellingMovieTickets.Areas.Admin.Models.Accounts;
 using SellingMovieTickets.Areas.Admin.Models.ViewModels.Order;
 using SellingMovieTickets.Areas.Admin.Models.ViewModels.OrderDetail;
 using SellingMovieTickets.Areas.Admin.Models.ViewModels.OrderDetailWithServices;

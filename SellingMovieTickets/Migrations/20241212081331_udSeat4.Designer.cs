@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SellingMovieTickets.Repository;
 
@@ -11,9 +12,10 @@ using SellingMovieTickets.Repository;
 namespace SellingMovieTickets.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20241212081331_udSeat4")]
+    partial class udSeat4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1013,9 +1015,6 @@ namespace SellingMovieTickets.Migrations
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("HeldByUserId")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("HoldUntil")
                         .HasColumnType("datetime2");
 
@@ -1033,6 +1032,9 @@ namespace SellingMovieTickets.Migrations
 
                     b.Property<string>("SeatNumber")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

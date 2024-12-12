@@ -21,6 +21,5 @@ namespace SellingMovieTickets.Models.Entities
         public DateTime ModifiedDate { get; set; }
 
         public ICollection<ReviewModel> Reviews { get; set; }
-
-    }
+    }   
 }

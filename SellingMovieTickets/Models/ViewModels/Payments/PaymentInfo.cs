@@ -21,6 +21,7 @@ namespace SellingMovieTickets.Models.ViewModels.Payments
 
     public class InforSeat
     {
+        public int Id { get; set; }
         public string SeatName { get; set; }
         [Column(TypeName = "decimal(10, 3)")]
         public decimal Price { get; set; }

@@ -2,8 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SellingMovieTickets.Areas.Admin.Models.Accounts;
-using SellingMovieTickets.Areas.Admin.Models.ViewModels;
 using SellingMovieTickets.Areas.Admin.Models.ViewModels.MovieCategory;
 using SellingMovieTickets.Models.Entities;
 using SellingMovieTickets.Models.Enum;

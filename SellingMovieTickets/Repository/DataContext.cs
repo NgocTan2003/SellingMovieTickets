@@ -38,6 +38,12 @@ namespace SellingMovieTickets.Repository
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<CustomerManagementModel>()
+                .HasOne(c => c.AppUser)
+                .WithMany()
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             // Thiết lập khóa chính cho bảng MovieCategoryMapping
             modelBuilder.Entity<MovieCategoryMappingModel>()
                 .HasKey(mc => new { mc.MovieId, mc.MovieCategoryId });

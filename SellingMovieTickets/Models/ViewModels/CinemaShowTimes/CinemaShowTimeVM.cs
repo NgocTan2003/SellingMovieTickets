@@ -1,5 +1,6 @@
 ﻿using SellingMovieTickets.Areas.Admin.Models.ViewModels.Movie;
 using SellingMovieTickets.Areas.Admin.Models.ViewModels.Room;
+using SellingMovieTickets.Areas.Admin.Models.ViewModels.Seat;
 using SellingMovieTickets.Models.Entities;
 using System.ComponentModel.DataAnnotations;
 
@@ -12,7 +13,7 @@ namespace SellingMovieTickets.Models.ViewModels.CinemaShowTimes
         public DateTime EndShowTime { get; set; }
         public RoomViewModel RoomVM { get; set; }
         public MovieViewModel MovieVM { get; set; }
-        public List<string> SelectedSeats { get; set; }
+        public List<SeatViewModel> Seats { get; set; }
 
         public string? CreateBy { get; set; }
         public DateTime CreateDate { get; set; }

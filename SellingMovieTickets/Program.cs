@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
+using SellingMovieTickets;
 using SellingMovieTickets.Areas.Admin.Repository;
 using SellingMovieTickets.Areas.Admin.Services.Implements;
 using SellingMovieTickets.Areas.Admin.Services.Interfaces;
@@ -81,6 +82,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
 builder.Services.AddAWSService<IAmazonS3>();
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -107,9 +109,13 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseRouting();
-
 app.UseAuthentication(); // ktra đăng nhập
 app.UseAuthorization(); // phân quyền
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<SeatHub>("/seat");
+});
 
 // Middleware cho việc đã login nhưng cố bấm Back quay về
 app.Use(async (context, next) =>
